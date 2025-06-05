@@ -52,11 +52,11 @@ const tags = {
 } as const
 
 interface Increment {
-    type: typeof tags.Increment
+    tag: typeof tags.Increment
 }
 
 interface Decrement {
-    type: typeof tags.Decrement
+    tag: typeof tags.Decrement
 }
 
 type ViewAction = Increment | Decrement
@@ -79,7 +79,7 @@ function update(
     model: ViewModel,
     action: ViewAction
 ): ViewModel {
-    switch (action.type) {
+    switch (action.tag) {
         case tags.Increment:
             return { count: model.count + 1 }
         case tags.Decrement:
@@ -97,9 +97,9 @@ function onButtonClick(
     _event: ViewEvent<HTMLButtonElement, MouseEvent>
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
-        dispatch({ type: tags.Decrement })
+        dispatch({ tag: tags.Decrement })
     } else {
-        dispatch({ type: tags.Increment })
+        dispatch({ tag: tags.Increment })
     }
 }
 
@@ -108,7 +108,7 @@ function onIncrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: tags.Increment })
+    dispatch({ tag: tags.Increment })
 }
 
 function onDecrement(
@@ -116,7 +116,7 @@ function onDecrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: tags.Decrement })
+    dispatch({ tag: tags.Decrement })
 }
 
 function view(
