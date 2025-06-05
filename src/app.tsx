@@ -41,6 +41,45 @@ function useResponder<Model, Action, Interaction>(
     return callback
 }
 
+
+type InferredResponders<Model, Action, T> = {
+    [K in keyof T]: T[K] extends Responder<Model, Action, infer I>
+    ? InteractionHandler<I>
+    : never
+}
+
+function useRespondersArray<
+    Model,
+    Action,
+    Responders extends readonly Responder<Model, Action, any>[]
+>(
+    dispatch: Dispatcher<Action>,
+    model: Model,
+    responders: Responders
+): InferredResponders<Model, Action, Responders> {
+    return responders.map((responder) => {
+        return useResponder(dispatch, model, responder)
+    }) as any
+}
+
+function useResponders<
+    Model,
+    Action,
+    Responders extends Record<string, Responder<Model, Action, any>>
+>(
+    dispatch: Dispatcher<Action>,
+    model: Model,
+    responders: Responders
+): InferredResponders<Model, Action, Responders> {
+    const result = {} as any
+
+    for (const key in responders) {
+        result[key] = useResponder(dispatch, model, responders[key])
+    }
+
+    return result
+}
+
 //---
 //--- Actions
 //---
@@ -129,15 +168,17 @@ function view(
     dispatch: Dispatcher<ViewAction>,
     model: ViewModel
 ) {
-    const increment = useResponder(dispatch, model, onIncrement)
-    const decrement = useResponder(dispatch, model, onDecrement)
-    const buttonClick = useResponder(dispatch, model, onButtonClick)
+    const responders = useResponders(dispatch, model, {
+        onIncrement,
+        onDecrement,
+        onButtonClick
+    })
 
     return <>
-        <button onClick={increment}>Increment</button >
+        <button onClick={responders.onIncrement}>Increment</button >
         <span>{model.count}</span>
-        <span onClick={decrement}>Decrement</span>
-        <button onClick={buttonClick}>Test</button>
+        <span onClick={responders.onDecrement}>Decrement</span>
+        <button onClick={responders.onButtonClick}>Test</button>
     </>
 }
 
@@ -190,9 +231,11 @@ function ComponentLayout(props: React.PropsWithChildren) {
 }
 
 function ComponentView({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
-    const increment = useResponder(dispatch, model, onIncrement)
-    const decrement = useResponder(dispatch, model, onDecrement)
-    const buttonClick = useResponder(dispatch, model, onButtonClick)
+    const { increment, decrement, buttonClick } = useResponders(dispatch, model, {
+        increment: onIncrement,
+        decrement: onDecrement,
+        buttonClick: onButtonClick
+    })
 
     return <>
         <Text size="77px">
