@@ -61,10 +61,14 @@ interface Decrement {
 
 type ViewAction = Increment | Decrement
 
+//---
+//--- Events
+//---
+
 type ViewEvent<El = Element, Ev = Event> = React.SyntheticEvent<El, Ev>
 
 //---
-//--- Model
+//--- Models
 //---
 
 type ViewModel = {
@@ -88,7 +92,7 @@ function update(
 }
 
 //---
-//--- View
+//--- Views
 //---
 
 function onButtonClick(
