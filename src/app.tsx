@@ -1,119 +1,50 @@
-import { useCallback, useMemo, useRef, useLayoutEffect, useEffect, useReducer } from "react"
+import {
+    useCallback,
+    useReducer,
+    useRef,
+} from "react"
 
-export const useIsomorphicLayoutEffect =
-    typeof window !== 'undefined' ? useLayoutEffect : useEffect
+import { usePortableLayoutEffect } from "./utils"
 
-export function useEventCallback<Args extends unknown[], R>(
-    fn: (...args: Args) => R,
-): (...args: Args) => R
-export function useEventCallback<Args extends unknown[], R>(
-    fn: ((...args: Args) => R) | undefined,
-): ((...args: Args) => R) | undefined
-export function useEventCallback<Args extends unknown[], R>(
-    fn: ((...args: Args) => R) | undefined,
-): ((...args: Args) => R) | undefined {
-    const ref = useRef<typeof fn>(() => {
-        throw new Error('Cannot call an event handler while rendering.')
-    })
+//---
+//--- Hooks
+//---
 
-    useIsomorphicLayoutEffect(() => {
-        ref.current = fn
-    }, [fn])
+type Dispatcher<Action> = (action: Action) => void
 
-    return useCallback((...args: Args) => ref.current?.(...args), [ref]) as (
-        ...args: Args
-    ) => R
-}
+type InteractionHandler<Interaction> = (event: Interaction) => void
 
-export function renderApp(props: any) {
-    return <Component count={props.count}></Component>
-}
+type Forwarder<Model, Action, Interaction> =
+    (dispatch: Dispatcher<Action>,
+        model: Model,
+        event: Interaction) => void
 
-type ViewModel = {
-    count: number
-}
-
-function onButtonPress(
-    dispatch: Dispatch<ViewAction>,
-    model: ViewModel,
-    event: React.SyntheticEvent<HTMLButtonElement>) {
-
-    console.log("model", model)
-    console.log("event", event)
-
-    if (model.count > 3 && model.count % 2 === 0) {
-        dispatch({ type: tags.Decrement })
-    } else {
-        dispatch({ type: tags.Increment })
-    }
-}
-
-type EventHandler<E = unknown> = (event: E) => void
-
-type Dispatch<Action> = (action: Action) => void
-
-type Reaction<Model, Action, E = unknown> = (dispatch: Dispatch<Action>, model: Model, event: E) => void
-
-type EventHandlerStorage<Model, Action, E = unknown> = Map<Reaction<Model, Action, E>, EventHandler<E>>
-
-type EventHandlerFactory<Model, Action, E = unknown> = (reaction: Reaction<Model, Action, E>) => EventHandler<E>
-
-function memoHandler<Model, Action, E = unknown>(
-    storageRef: React.RefObject<EventHandlerStorage<Model, Action, E>>,
-    makeEventHandler: EventHandlerFactory<Model, Action, E>): EventHandlerFactory<Model, Action, E> {
-    return (reaction: Reaction<Model, Action, E>) => {
-        const storage: EventHandlerStorage<Model, Action, E> = storageRef.current
-        const handler = storage.get(reaction)
-        if (handler !== undefined) {
-            return handler
-        } else {
-            const eventHandler = makeEventHandler(reaction)
-            storage.set(reaction, eventHandler)
-            storageRef.current = storage
-            return eventHandler
-        }
-    }
-}
-
-function useReaction<Model, Action, E = unknown>(dispatch: Dispatch<Action>, model: Model) {
+function useResponder<Model, Action, Interaction>(
+    dispatch: Dispatcher<Action>,
+    model: Model,
+    forward: Forwarder<Model, Action, Interaction>
+): InteractionHandler<Interaction> {
     const modelRef = useRef(model)
-    const storageRef = useMemo(() => {
-        return { current: new Map() }
-    }, [])
+    const dispatchRef = useRef(dispatch)
 
-    useIsomorphicLayoutEffect(() => {
+    usePortableLayoutEffect(() => {
         modelRef.current = model
-    }, [model])
+        dispatchRef.current = dispatch
+    }, [model, dispatch])
 
-    const factory = useMemo(() => {
-        return (reaction: Reaction<Model, Action, E>) => {
-            const memoizer = memoHandler(storageRef, (callback: Reaction<Model, Action, E>) => {
-                return (event: E) => {
-                    return callback(dispatch, modelRef.current, event)
-                }
-            })
-            return memoizer(reaction)
-        }
-    }, [storageRef, modelRef])
+    const callback = useCallback((event: Interaction) => {
+        forward(dispatchRef.current, modelRef.current, event)
+    }, [modelRef, dispatchRef])
 
-    useEffect(() => {
-        return () => {
-            storageRef.current.clear()
-        }
-    }, [storageRef])
-
-    return factory
+    return callback
 }
 
-function view(makeHandler: EventHandlerFactory<ViewModel, ViewAction, React.SyntheticEvent<HTMLButtonElement>>, model: ViewModel) {
-    return <>
-        <button onClick={makeHandler(onButtonPress)}>Increment</button>
-        <span>{model.count}</span>
-    </>
-}
+//---
+//--- Actions
+//---
 
-const IncrementTag: unique symbol = Symbol("Increment")
 const DecrementTag: unique symbol = Symbol("Decrement")
+const IncrementTag: unique symbol = Symbol("Increment")
 
 const tags = {
     Decrement: DecrementTag,
@@ -128,10 +59,26 @@ interface Decrement {
     type: typeof tags.Decrement
 }
 
-export type ViewAction = Increment | Decrement
+type ViewAction = Increment | Decrement
 
-function update(model: ViewModel, action: ViewAction): ViewModel {
-    console.log("update", { model, action })
+type ViewEvent<El = Element, Ev = Event> = React.SyntheticEvent<El, Ev>
+
+//---
+//--- Model
+//---
+
+type ViewModel = {
+    count: number
+}
+
+//---
+//--- Update
+//---
+
+function update(
+    model: ViewModel,
+    action: ViewAction
+): ViewModel {
     switch (action.type) {
         case tags.Increment:
             return { count: model.count + 1 }
@@ -140,8 +87,59 @@ function update(model: ViewModel, action: ViewAction): ViewModel {
     }
 }
 
+//---
+//--- View
+//---
+
+function onButtonClick(
+    dispatch: Dispatcher<ViewAction>,
+    model: ViewModel,
+    _event: ViewEvent<HTMLButtonElement, MouseEvent>
+) {
+    if (model.count > 3 && model.count % 2 === 0) {
+        dispatch({ type: tags.Decrement })
+    } else {
+        dispatch({ type: tags.Increment })
+    }
+}
+
+function onIncrement(
+    dispatch: Dispatcher<ViewAction>,
+    _model: ViewModel,
+    _event: ViewEvent
+) {
+    dispatch({ type: tags.Increment })
+}
+
+function onDecrement(
+    dispatch: Dispatcher<ViewAction>,
+    _model: ViewModel,
+    _event: ViewEvent
+) {
+    dispatch({ type: tags.Decrement })
+}
+
+function view(
+    dispatch: Dispatcher<ViewAction>,
+    model: ViewModel
+) {
+    const increment = useResponder(dispatch, model, onIncrement)
+    const decrement = useResponder(dispatch, model, onDecrement)
+    const buttonClick = useResponder(dispatch, model, onButtonClick)
+
+    return <>
+        <button onClick={increment}>Increment</button >
+        <span>{model.count}</span>
+        <button onClick={decrement}>Decrement</button>
+        <button onClick={buttonClick}>Test</button>
+    </>
+}
+
 function Component(model: ViewModel) {
     const [state, dispatch] = useReducer(update, model)
-    const reaction = useReaction<ViewModel, ViewAction, React.SyntheticEvent<HTMLButtonElement>>(dispatch, state)
-    return view(reaction, state)
+    return view(dispatch, state)
+}
+
+export function renderApp(props: any) {
+    return <Component count={props.count}></Component>
 }
