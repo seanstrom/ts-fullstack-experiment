@@ -14,7 +14,7 @@ type Dispatcher<Action> = (action: Action) => void
 
 type InteractionHandler<Interaction> = (event: Interaction) => void
 
-type Forwarder<Model, Action, Interaction> =
+type Responder<Model, Action, Interaction> =
     (dispatch: Dispatcher<Action>,
         model: Model,
         event: Interaction) => void
@@ -22,7 +22,7 @@ type Forwarder<Model, Action, Interaction> =
 function useResponder<Model, Action, Interaction>(
     dispatch: Dispatcher<Action>,
     model: Model,
-    forward: Forwarder<Model, Action, Interaction>
+    forward: Responder<Model, Action, Interaction>
 ): InteractionHandler<Interaction> {
     const modelRef = useRef(model)
     const dispatchRef = useRef(dispatch)
