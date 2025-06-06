@@ -6,6 +6,8 @@ import {
 
 import { usePortableLayoutEffect } from "./utils"
 
+import { Grommet, Box, Button, Text, grommet } from "grommet"
+
 //---
 //--- Hooks
 //---
@@ -98,7 +100,7 @@ function update(
 function onButtonClick(
     dispatch: Dispatcher<ViewAction>,
     model: ViewModel,
-    _event: ViewEvent<HTMLButtonElement, MouseEvent>
+    _event: React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
         dispatch({ tag: tags.Decrement })
@@ -134,16 +136,97 @@ function view(
     return <>
         <button onClick={increment}>Increment</button >
         <span>{model.count}</span>
-        <button onClick={decrement}>Decrement</button>
+        <span onClick={decrement}>Decrement</span>
         <button onClick={buttonClick}>Test</button>
+    </>
+}
+
+function AppLayout(props: React.PropsWithChildren) {
+    const { children } = props
+
+    return <>
+        <Grommet full={true} theme={grommet}>
+            <Box
+                background="dark-2"
+                direction="column"
+                height="100%"
+                justify="center">
+                <Box
+                    align="center"
+                    background="dark-2"
+                    direction="row-responsive"
+                    gap="medium"
+                    justify="center"
+                    pad="xlarge"
+                    children={children}
+                />
+            </Box>
+        </Grommet>
+    </>
+}
+
+function App(model: ViewModel) {
+    return <>
+        <AppLayout>
+            <Component {...model} />
+        </AppLayout>
+    </>
+}
+
+function ComponentLayout(props: React.PropsWithChildren) {
+    const { children } = props
+
+    return <>
+        <Box
+            align="center"
+            gap="small"
+            pad="large"
+            round={true}
+            background={{ color: 'light-2', opacity: 'strong' }}
+            children={children}
+        />
+    </>
+}
+
+function ComponentView({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
+    const increment = useResponder(dispatch, model, onIncrement)
+    const decrement = useResponder(dispatch, model, onDecrement)
+    const buttonClick = useResponder(dispatch, model, onButtonClick)
+
+    return <>
+        <Text size="77px">
+            {model.count}
+        </Text>
+
+        <Button
+            label="Increment"
+            onClick={increment}
+        />
+
+        <Button
+            label="Decrement"
+            onClick={decrement}
+        />
+
+        <Button
+            label="Test"
+            onClick={buttonClick}
+        />
     </>
 }
 
 function Component(model: ViewModel) {
     const [state, dispatch] = useReducer(update, model)
-    return view(dispatch, state)
+    return <>
+        <ComponentLayout>
+            <ComponentView
+                model={state}
+                dispatch={dispatch}
+            />
+        </ComponentLayout>
+    </>
 }
 
 export function renderApp(props: any) {
-    return <Component count={props.count}></Component>
+    return <App {...props} />
 }
