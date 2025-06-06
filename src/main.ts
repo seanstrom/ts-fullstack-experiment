@@ -14,7 +14,6 @@ function renderRoot(state: RootState): void {
 
 function main(state: RootState, elementId: string): void {
     if (state.root) {
-        console.log("update")
         renderRoot(state)
     } else {
         const element = document.getElementById(elementId)
