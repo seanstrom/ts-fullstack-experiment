@@ -1,12 +1,12 @@
 import {
     useCallback,
-    useReducer,
     useRef,
 } from "react"
 
-import { usePortableLayoutEffect } from "./utils"
-
 import { Grommet, Box, Button, Text, grommet } from "grommet"
+
+import { type Store } from "./store"
+import { usePortableLayoutEffect } from "./utils"
 
 //---
 //--- Hooks
@@ -49,19 +49,19 @@ const DecrementTag: unique symbol = Symbol("Decrement")
 const IncrementTag: unique symbol = Symbol("Increment")
 
 const tags = {
-    Decrement: DecrementTag,
-    Increment: IncrementTag,
+    Decrement: ":counter/decrement",
+    Increment: ":counter/increment",
 } as const
 
 interface Increment {
-    tag: typeof tags.Increment
+    type: typeof tags.Increment
 }
 
 interface Decrement {
-    tag: typeof tags.Decrement
+    type: typeof tags.Decrement
 }
 
-type ViewAction = Increment | Decrement
+export type ViewAction = Increment | Decrement
 
 //---
 //--- Events
@@ -73,7 +73,7 @@ type ViewEvent<El = Element, Ev = Event> = React.SyntheticEvent<El, Ev>
 //--- Models
 //---
 
-type ViewModel = {
+export type ViewModel = {
     count: number
 }
 
@@ -85,7 +85,7 @@ function update(
     model: ViewModel,
     action: ViewAction
 ): ViewModel {
-    switch (action.tag) {
+    switch (action.type) {
         case tags.Increment:
             return { count: model.count + 1 }
         case tags.Decrement:
@@ -103,9 +103,9 @@ function onButtonClick(
     _event: React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
-        dispatch({ tag: tags.Decrement })
+        dispatch({ type: tags.Decrement })
     } else {
-        dispatch({ tag: tags.Increment })
+        dispatch({ type: tags.Increment })
     }
 }
 
@@ -114,7 +114,7 @@ function onIncrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ tag: tags.Increment })
+    dispatch({ type: tags.Increment })
 }
 
 function onDecrement(
@@ -122,7 +122,7 @@ function onDecrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ tag: tags.Decrement })
+    dispatch({ type: tags.Decrement })
 }
 
 function view(
@@ -165,10 +165,11 @@ function AppLayout(props: React.PropsWithChildren) {
     </>
 }
 
-function App(model: ViewModel) {
+function App({ store }: { store: Store }) {
+    const state = store((state) => state)
     return <>
         <AppLayout>
-            <Component {...model} />
+            <Component model={state} dispatch={state.dispatch} />
         </AppLayout>
     </>
 }
@@ -215,18 +216,21 @@ function ComponentView({ model, dispatch }: { model: ViewModel, dispatch: Dispat
     </>
 }
 
-function Component(model: ViewModel) {
-    const [state, dispatch] = useReducer(update, model)
+function Component({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
     return <>
         <ComponentLayout>
             <ComponentView
-                model={state}
+                model={model}
                 dispatch={dispatch}
             />
         </ComponentLayout>
     </>
 }
 
-export function renderApp(props: any) {
-    return <App {...props} />
+export function renderApp(store: Store) {
+    return <App store={store} />
 }
+
+export const updateApp = update
+export const initApp = () => ({ count: 0 } as ViewModel)
+

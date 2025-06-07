@@ -1,13 +1,12 @@
 import { type Root } from "react-dom/client"
+import { type Store } from "./store"
 
 export interface RootState {
     root?: Root
-    context: any
+    store?: Store
 }
 
 export const state: RootState = {
     root: undefined,
-    context: {
-        count: 0
-    }
+    store: undefined,
 }

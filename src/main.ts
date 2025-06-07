@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client"
-import { renderApp } from "./app"
+import { initApp, renderApp, updateApp, type ViewModel, type ViewAction } from "./app"
 import { state, type RootState } from "./state"
+import { createStore, type Store } from "./store"
 
 if (import.meta.hot) {
     import.meta.hot.accept()
@@ -8,19 +9,20 @@ if (import.meta.hot) {
 
 const rootElementId = "root"
 
-function renderRoot(state: RootState): void {
-    state.root?.render(renderApp(state.context))
+function renderRoot(store: Store): void {
+    state.root?.render(renderApp(store))
 }
 
 function main(state: RootState, elementId: string): void {
-    if (state.root) {
-        renderRoot(state)
+    if (state.root && state.store) {
+        renderRoot(state.store)
     } else {
         const element = document.getElementById(elementId)
         if (element) {
             const rootApp = createRoot(element)
             state.root = rootApp
-            renderRoot(state)
+            state.store = createStore(initApp, updateApp)
+            renderRoot(state.store)
         }
     }
 }
