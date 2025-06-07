@@ -194,7 +194,6 @@ function AppLayout(props: React.PropsWithChildren) {
                 justify="center">
                 <Box
                     align="center"
-                    background="dark-2"
                     direction="row-responsive"
                     gap="medium"
                     justify="center"
@@ -221,8 +220,9 @@ function ComponentLayout(props: React.PropsWithChildren) {
     return <>
         <Box
             align="center"
-            gap="small"
             pad="large"
+            gap="xsmall"
+            cssGap={true}
             round={true}
             background={{ color: 'light-2', opacity: 'strong' }}
             children={children}
@@ -243,11 +243,13 @@ function ComponentView({ model, dispatch }: { model: ViewModel, dispatch: Dispat
         </Text>
 
         <Button
+            primary
             label="Increment"
             onClick={increment}
         />
 
         <Button
+            primary
             label="Decrement"
             onClick={decrement}
         />
