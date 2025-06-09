@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client"
-import { initApp, renderApp, updateApp, type ViewModel, type ViewAction } from "./app"
+import { initApp, renderApp, updateApp } from "./app"
+import type { ViewModel, ViewAction } from "./app"
 import { state, type RootState } from "./state"
 import { createStore, type Store } from "./store"
 
@@ -9,7 +10,7 @@ if (import.meta.hot) {
 
 const rootElementId = "root"
 
-function renderRoot(store: Store): void {
+function renderRoot(store: Store<ViewModel, ViewAction>): void {
     state.root?.render(renderApp(store))
 }
 
