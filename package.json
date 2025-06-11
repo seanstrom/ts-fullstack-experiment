@@ -17,13 +17,18 @@
     "vite": "^6.3.5"
   },
   "dependencies": {
+    "@trpc/client": "^11.3.1",
+    "@trpc/server": "^11.3.1",
+    "@types/cors": "^2.8.19",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "cors": "^2.8.5",
     "grommet": "^2.47.0",
     "polished": "^4.3.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "styled-components": "^6.1.18",
+    "zod": "^3.25.57",
     "zustand": "^5.0.5"
   }
 }
