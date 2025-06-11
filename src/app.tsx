@@ -96,9 +96,10 @@ function ComponentLayout(props: React.PropsWithChildren) {
     </>
 }
 
-function ComponentButton
-    <ClickInteraction extends InteractionHandler<ViewEvent>>
-    (props: { label: string, onClick: ClickInteraction }) {
+function ComponentButton<
+    ButtonInteraction extends React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>,
+    ClickHandler extends InteractionHandler<ButtonInteraction>>
+    (props: { label: string, onClick: ClickHandler }) {
     return <>
         <Button
             primary
