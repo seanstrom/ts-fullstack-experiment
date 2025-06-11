@@ -27,7 +27,7 @@ export type ViewAction = Increment | Decrement
 //--- Events
 //---
 
-export type ViewEvent<El = Element, Ev = Event> = React.SyntheticEvent<El, Ev>
+export type ViewEvent<El = Element, Ev = Event> = React.UIEvent<El, Ev>
 
 //---
 //--- Models
