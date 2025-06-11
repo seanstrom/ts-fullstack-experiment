@@ -1,7 +1,8 @@
 import { memo as memoRender } from "react"
 import { Grommet, Box, Button, Text, grommet } from "grommet"
 
-import { type Store } from "./store"
+import { type Change, type EffectAction, type Store } from "./store"
+import type { Proc } from "./clientApi"
 import { useResponders, type Dispatcher, type InteractionHandler } from "./framework"
 
 //---
@@ -41,12 +42,14 @@ export type ViewModel = {
 //--- Update
 //---
 
-function update(model: ViewModel, action: ViewAction): ViewModel {
+function update(model: ViewModel, action: ViewAction): Change<ViewModel, any> {
     switch (action.type) {
         case tags.Increment:
-            return { count: model.count + 1 }
+            return { model: { count: model.count + 1 }, effect: null }
         case tags.Decrement:
-            return { count: model.count - 1 }
+            return { model: { count: model.count - 1 }, effect: null }
+        default:
+            return { model: model, effect: null }
     }
 }
 
@@ -179,5 +182,14 @@ export function renderApp(store: Store<ViewModel, ViewAction>) {
 }
 
 export const updateApp = update
-export const initApp = () => ({ count: 0 } as ViewModel)
 
+export function initApp(): Change<ViewModel, Proc> {
+    return {
+        model: { count: 0 },
+        effect: {
+            type: "fetchRandomQuote",
+            procedure: "query",
+            input: (void 0),
+        }
+    }
+}
