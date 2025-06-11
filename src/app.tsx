@@ -8,7 +8,7 @@ import { useResponders, type Dispatcher, type InteractionHandler } from "./frame
 //--- Actions
 //---
 
-const tags = {
+export const tags = {
     Decrement: ":counter/decrement",
     Increment: ":counter/increment",
 } as const
