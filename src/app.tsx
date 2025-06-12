@@ -1,8 +1,8 @@
 import { memo as memoRender } from "react"
 import { Grommet, Box, Button, Text, grommet } from "grommet"
 
-import { type Change, type EffectAction, type Store } from "./store"
-import type { Proc } from "./clientApi"
+import { type Quote } from "./data"
+import { type Change, type Store, type AppEffect } from "./store"
 import { useResponders, type Dispatcher, type InteractionHandler } from "./framework"
 
 //---
@@ -12,6 +12,7 @@ import { useResponders, type Dispatcher, type InteractionHandler } from "./frame
 export const tags = {
     Decrement: ":counter/decrement",
     Increment: ":counter/increment",
+    GotRandomQuote: ":quotes/GotRandomQuote",
 } as const
 
 interface Increment {
@@ -22,7 +23,12 @@ interface Decrement {
     type: typeof tags.Decrement
 }
 
-export type ViewAction = Increment | Decrement
+interface GotRandomQuote {
+    type: typeof tags.GotRandomQuote
+    quote: Quote
+}
+
+export type ViewAction = Increment | Decrement | GotRandomQuote
 
 //---
 //--- Events
@@ -36,6 +42,7 @@ export type ViewEvent<El = Element, Ev = Event> = React.UIEvent<El, Ev>
 
 export type ViewModel = {
     count: number
+    quote?: Quote
 }
 
 //---
@@ -48,6 +55,8 @@ function update(model: ViewModel, action: ViewAction): Change<ViewModel, any> {
             return { model: { count: model.count + 1 }, effect: null }
         case tags.Decrement:
             return { model: { count: model.count - 1 }, effect: null }
+        case tags.GotRandomQuote:
+            return { model: Object.assign({ quote: action.quote }, model), effect: null }
         default:
             return { model: model, effect: null }
     }
@@ -122,27 +131,37 @@ function Component({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher
     })
 
     return <>
-        <ComponentLayout>
-            <Text size="77px">
-                {model.count}
-            </Text>
+        <Box direction="row" justify="evenly">
+            <ComponentLayout>
+                <Text size="77px">
+                    {model.count}
+                </Text>
 
-            <ComponentButtonMemo
-                label="Increment"
-                onClick={responders.onIncrement}
-            />
+                <ComponentButtonMemo
+                    label="Increment"
+                    onClick={responders.onIncrement}
+                />
 
-            <Button
-                primary
-                label="Decrement"
-                onClick={responders.onDecrement}
-            />
+                <Button
+                    primary
+                    label="Decrement"
+                    onClick={responders.onDecrement}
+                />
 
-            <Button
-                label="Test"
-                onClick={responders.onButtonClick}
-            />
-        </ComponentLayout>
+                <Button
+                    label="Test"
+                    onClick={responders.onButtonClick}
+                />
+            </ComponentLayout>
+
+            <ComponentLayout>
+                {model.quote && (
+                    <Text size="37px">
+                        {model.quote.quote}
+                    </Text>
+                )}
+            </ComponentLayout>
+        </Box>
     </>
 }
 
@@ -183,13 +202,16 @@ export function renderApp(store: Store<ViewModel, ViewAction>) {
 
 export const updateApp = update
 
-export function initApp(): Change<ViewModel, Proc> {
+export function initApp(): Change<ViewModel, AppEffect> {
     return {
         model: { count: 0 },
         effect: {
-            type: "fetchRandomQuote",
-            procedure: "query",
-            input: (void 0),
+            type: ":effects/rpc",
+            command: {
+                type: "fetchRandomQuote",
+                procedure: "query",
+                input: (void 0),
+            }
         }
     }
 }

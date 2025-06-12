@@ -2,13 +2,6 @@ import type { AppRouter } from "./server"
 
 import { createTRPCClient, httpBatchLink, type Resolver } from '@trpc/client';
 
-type ResolverDef = {
-    input: any;
-    output: any;
-    transformer: boolean;
-    errorShape: any;
-};
-
 export function createClientApi() {
     return createTRPCClient<AppRouter>({
         links: [
@@ -21,38 +14,40 @@ export function createClientApi() {
 
 export type ClientApi = ReturnType<typeof createClientApi>
 
-type ClientProcInput<Details> =
-    Details extends Resolver<infer R extends ResolverDef> ? R["input"] : any
+type ResolverDef = {
+    input: any;
+    output: any;
+    transformer: boolean;
+    errorShape: any;
+};
 
-type ClientProcOutput<Details> =
-    Details extends Resolver<infer R extends ResolverDef> ? R["output"] : any
+type InferDetail<Details, Field extends keyof ResolverDef> =
+    Details extends Resolver<infer R extends ResolverDef>
+    ? R[Field]
+    : any
 
-type ClientProcedureType<Proc> = {
-    [K in keyof Proc]: {
-        type: K,
-        details: Proc[K]
-    }
-}[keyof Proc]["type"]
+type Procedure<ProcType, Details> = {
+    type: ProcType
+    details: Details
+}
 
-type ClientProcedureDetails<Proc> = {
-    [K in keyof Proc]: {
-        type: K,
-        details: Proc[K]
-    }
-}[keyof Proc]["details"]
+type Procedures<Api> = {
+    [K in keyof Api]: Procedure<K, Api[K]>
+}[keyof Api]
 
-export type ClientApiProcedure = {
+export type ClientApiEffects = {
     [K in keyof ClientApi]: {
         type: K
-        procedure: ClientProcedureType<ClientApi[K]>
-        details: ClientProcedureDetails<ClientApi[K]>
+        procedure: Procedures<ClientApi[K]>["type"]
+        details: Procedures<ClientApi[K]>["details"]
     }
 }
 
-export type Proc = {
-    [K in keyof ClientApiProcedure]: {
-        type: ClientApiProcedure[K]["type"]
-        procedure: ClientApiProcedure[K]["procedure"]
-        input: ClientProcInput<ClientApiProcedure[K]["details"]>
+export type ClientApiEffect = {
+    [K in keyof ClientApiEffects]: {
+        type: ClientApiEffects[K]["type"]
+        procedure: ClientApiEffects[K]["procedure"]
+        input: InferDetail<ClientApiEffects[K]["details"], "input">
     }
-}[keyof ClientApiProcedure]
+}[keyof ClientApiEffects]
+

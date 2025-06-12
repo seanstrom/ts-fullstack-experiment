@@ -1,9 +1,8 @@
 import { createRoot } from "react-dom/client"
-import { initApp, renderApp, updateApp } from "./app"
-import type { ViewModel, ViewAction } from "./app"
+import { initApp, renderApp, updateApp, type ViewModel, type ViewAction } from "./app"
+import { createClientApi, type ClientApi } from "./clientApi"
 import { state, type RootState } from "./state"
-import { createStore, type Store, type EffectAction } from "./store"
-import { createClientApi, type Proc } from "./clientApi"
+import { createStore, type Store, type EffectAction, type AppEffect } from "./store"
 
 if (import.meta.hot) {
     import.meta.hot.accept()
@@ -15,16 +14,39 @@ function renderRoot(store: Store<ViewModel, ViewAction>): void {
     state.root?.render(renderApp(store))
 }
 
-function forwardEffects(state: RootState<ViewModel, ViewAction>) {
-    return async (effectAction: EffectAction<Proc, ViewAction>) => {
-        const effect = effectAction.effect
-        if (state.api) {
-            switch (effect.type) {
+async function runEffect(api: ClientApi, effectAction: EffectAction<AppEffect, ViewAction>) {
+    const effect = effectAction.effect
+    switch (effect.type) {
+        case ":effects/rpc": {
+            const rpcEffect = effect.command
+            switch (rpcEffect.type) {
                 case "fetchRandomQuote": {
-                    const quote = await state.api[effect.type][effect.procedure](effect.input)
-                    console.log(quote)
+                    const response = await api[rpcEffect.type][rpcEffect.procedure](rpcEffect.input)
+                    effectAction.dispatch({
+                        type: ":quotes/GotRandomQuote",
+                        quote: response
+                    })
+                    return response
+                }
+                case "hello": {
+                    const response = await api[rpcEffect.type][rpcEffect.procedure](rpcEffect.input)
+                    return response
+                }
+                default: {
+                    return console.log("Warning: rpc effect not implemented")
                 }
             }
+        }
+        default: {
+            return console.log("Warning: effect not implemented", effect)
+        }
+    }
+}
+
+function forwardEffects(state: RootState<ViewModel, ViewAction>) {
+    return async (effectAction: EffectAction<AppEffect, ViewAction>) => {
+        if (state.api) {
+            runEffect(state.api, effectAction)
         }
     }
 }
