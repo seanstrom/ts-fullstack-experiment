@@ -1,11 +1,12 @@
 import { memo as memoRender } from "react"
 import { Grommet, Box, Button, Text, grommet } from "grommet"
+import { create as mutate } from "mutative"
 
 import { type Quote } from "../data"
 import { type Change, type Store, type AppEffect, type RpcEffect } from "./store"
 import { useResponders, type Dispatcher, type InteractionHandler } from "./framework"
 
-import { type ViewAction, ViewActionTags } from "./actions"
+import { type ViewAction, type CounterAction, type QuoterAction, CounterActionTags, QuoterActionTags } from "./actions"
 export { type ViewAction } from "./actions"
 
 //---
@@ -18,9 +19,17 @@ export type ViewEvent<El = Element, Ev = Event> = React.UIEvent<El, Ev>
 //--- Models
 //---
 
-export type ViewModel = {
+export type CounterModel = {
     count: number
+}
+
+export type QuoterModel = {
     quote?: Quote
+}
+
+export type ViewModel = {
+    counter: CounterModel
+    quoter: QuoterModel
 }
 
 //---
@@ -36,18 +45,47 @@ const randomQuoteEffect: RpcEffect = {
     }
 }
 
-function update(model: ViewModel, action: ViewAction): Change<ViewModel, AppEffect> {
+function isQuoterAction(action: ViewAction): action is QuoterAction {
+    return action.type.includes(":quoter/")
+}
+
+function isCounterAction(action: ViewAction): action is CounterAction {
+    return action.type.includes(":counter/")
+}
+
+function updateQuoter(model: QuoterModel, action: QuoterAction): Change<QuoterModel, AppEffect> {
     switch (action.type) {
-        case ViewActionTags.Increment:
-            return { model: { count: model.count + 1 } }
-        case ViewActionTags.Decrement:
-            return { model: { count: model.count - 1 } }
-        case ViewActionTags.GotRandomQuote:
+        case QuoterActionTags.GotRandomQuote:
             return { model: Object.assign({}, model, { quote: action.quote }) }
-        case ViewActionTags.GetRandomQuote:
+        case QuoterActionTags.GetRandomQuote:
             return { model: model, effect: randomQuoteEffect }
-        default:
-            return { model: model }
+    }
+}
+
+function updateCounter(model: CounterModel, action: CounterAction): Change<CounterModel, AppEffect> {
+    switch (action.type) {
+        case CounterActionTags.Increment:
+            return { model: mutate(model, draft => { draft.count = model.count + 1 }) }
+        case CounterActionTags.Decrement:
+            return { model: mutate(model, draft => { draft.count = model.count - 1 }) }
+    }
+}
+
+function update(model: ViewModel, action: ViewAction): Change<ViewModel, AppEffect> {
+    if (isQuoterAction(action)) {
+        const change = updateQuoter(model.quoter, action)
+        return {
+            model: mutate(model, draft => { draft.quoter = change.model }),
+            effect: change.effect
+        }
+    } else if (isCounterAction(action)) {
+        const change = updateCounter(model.counter, action)
+        return {
+            model: mutate(model, draft => { draft.counter = change.model }),
+            effect: change.effect
+        }
+    } else {
+        return { model: model }
     }
 }
 
@@ -57,30 +95,30 @@ function update(model: ViewModel, action: ViewAction): Change<ViewModel, AppEffe
 
 function onButtonClick(
     dispatch: Dispatcher<ViewAction>,
-    model: ViewModel,
+    model: CounterModel,
     _event: React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
-        dispatch({ type: ViewActionTags.Decrement })
+        dispatch({ type: CounterActionTags.Decrement })
     } else {
-        dispatch({ type: ViewActionTags.Increment })
+        dispatch({ type: CounterActionTags.Increment })
     }
 }
 
 function onIncrement(
     dispatch: Dispatcher<ViewAction>,
-    _model: ViewModel,
+    _model: CounterModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: ViewActionTags.Increment })
+    dispatch({ type: CounterActionTags.Increment })
 }
 
 function onDecrement(
     dispatch: Dispatcher<ViewAction>,
-    _model: ViewModel,
+    _model: CounterModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: ViewActionTags.Decrement })
+    dispatch({ type: CounterActionTags.Decrement })
 }
 
 function ComponentLayout(props: React.PropsWithChildren) {
@@ -115,15 +153,15 @@ const ComponentButtonMemo = memoRender(ComponentButton)
 
 function onGetRandomQuote(
     dispatch: Dispatcher<ViewAction>,
-    _model: ViewModel,
+    _model: QuoterModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: ViewActionTags.GetRandomQuote })
+    dispatch({ type: QuoterActionTags.GetRandomQuote })
 }
 
-function RandomQuote({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
-    const quote = model.quote?.quote
-    const message = quote ? quote : "Want to see a quote?"
+function RandomQuote({ model, dispatch }: { model: QuoterModel, dispatch: Dispatcher<ViewAction> }) {
+    const quote = model.quote
+    const message = quote ? quote.quote : "Want to see a quote?"
 
     const responders = useResponders(dispatch, model, { onGetRandomQuote })
 
@@ -140,7 +178,7 @@ function RandomQuote({ model, dispatch }: { model: ViewModel, dispatch: Dispatch
     </>
 }
 
-function Counter({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
+function Counter({ model, dispatch }: { model: CounterModel, dispatch: Dispatcher<ViewAction> }) {
     const responders = useResponders(dispatch, model, {
         onIncrement,
         onDecrement,
@@ -195,8 +233,8 @@ function App({ store }: { store: Store<ViewModel, ViewAction> }) {
     const state = store((state) => state)
     return <>
         <AppLayout>
-            <Counter model={state} dispatch={state.dispatch} />
-            <RandomQuote model={state} dispatch={state.dispatch} />
+            <Counter model={state.counter} dispatch={state.dispatch} />
+            <RandomQuote model={state.quoter} dispatch={state.dispatch} />
         </AppLayout>
     </>
 }
@@ -209,6 +247,9 @@ export const updateApp = update
 
 export function initApp(): Change<ViewModel, AppEffect> {
     return {
-        model: { count: 0 },
+        model: {
+            counter: { count: 0 },
+            quoter: {}
+        },
     }
 }

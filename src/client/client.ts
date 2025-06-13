@@ -23,7 +23,7 @@ async function runEffect(api: ClientApi, effectAction: EffectAction<AppEffect, V
                 case "fetchRandomQuote": {
                     const response = await api[rpcEffect.type][rpcEffect.procedure](rpcEffect.input)
                     effectAction.dispatch({
-                        type: ":quotes/GotRandomQuote",
+                        type: ":quoter/GotRandomQuote",
                         quote: response
                     })
                     return response

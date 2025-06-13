@@ -1,31 +1,39 @@
 import { type Quote } from "../data"
 
-export const ViewActionTags = {
+export const CounterActionTags = {
     Decrement: ":counter/decrement",
     Increment: ":counter/increment",
-    GetRandomQuote: ":quotes/GetRandomQuote",
-    GotRandomQuote: ":quotes/GotRandomQuote",
+} as const
+
+export const QuoterActionTags = {
+    GetRandomQuote: ":quoter/GetRandomQuote",
+    GotRandomQuote: ":quoter/GotRandomQuote",
+} as const
+
+export const ViewActionTags = {
+    Counter: CounterActionTags,
+    Qouter: QuoterActionTags,
 } as const
 
 export interface Increment {
-    type: typeof ViewActionTags.Increment
+    type: typeof CounterActionTags.Increment
 }
 
 export interface Decrement {
-    type: typeof ViewActionTags.Decrement
+    type: typeof CounterActionTags.Decrement
 }
 
 export interface GetRandomQuote {
-    type: typeof ViewActionTags.GetRandomQuote
+    type: typeof QuoterActionTags.GetRandomQuote
 }
 
 export interface GotRandomQuote {
-    type: typeof ViewActionTags.GotRandomQuote
+    type: typeof QuoterActionTags.GotRandomQuote
     quote: Quote
 }
 
-export type ViewAction =
-    Increment
-    | Decrement
-    | GotRandomQuote
-    | GetRandomQuote
+export type QuoterAction = GetRandomQuote | GotRandomQuote
+
+export type CounterAction = Increment | Decrement
+
+export type ViewAction = QuoterAction | CounterAction
