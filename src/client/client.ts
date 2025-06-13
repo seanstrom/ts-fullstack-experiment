@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client"
 import { initApp, renderApp, updateApp, type ViewModel, type ViewAction } from "./app"
-import { createClientApi, type ClientApi } from "./clientApi"
+import { createClientApi, type ClientApi } from "./api"
 import { state, type RootState } from "./state"
-import { createStore, type Store, type EffectAction, type AppEffect, type RpcEffect } from "./store"
+import { createStore, type Store, type EffectAction, type AppEffect } from "./store"
 
 if (import.meta.hot) {
     import.meta.hot.accept()

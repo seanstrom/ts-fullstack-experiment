@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { devtools, redux } from "zustand/middleware"
-import type { ClientApiEffect } from "./clientApi"
+import type { ClientApiEffect } from "./api"
 
 const tags = {
     Rpc: ":effects/rpc",

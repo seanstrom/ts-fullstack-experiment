@@ -1,43 +1,12 @@
 import { memo as memoRender } from "react"
 import { Grommet, Box, Button, Text, grommet } from "grommet"
 
-import { type Quote } from "./data"
+import { type Quote } from "../data"
 import { type Change, type Store, type AppEffect, type RpcEffect } from "./store"
 import { useResponders, type Dispatcher, type InteractionHandler } from "./framework"
 
-//---
-//--- Actions
-//---
-
-export const tags = {
-    Decrement: ":counter/decrement",
-    Increment: ":counter/increment",
-    GetRandomQuote: ":quotes/GetRandomQuote",
-    GotRandomQuote: ":quotes/GotRandomQuote",
-} as const
-
-interface Increment {
-    type: typeof tags.Increment
-}
-
-interface Decrement {
-    type: typeof tags.Decrement
-}
-
-interface GetRandomQuote {
-    type: typeof tags.GetRandomQuote
-}
-
-interface GotRandomQuote {
-    type: typeof tags.GotRandomQuote
-    quote: Quote
-}
-
-export type ViewAction =
-    Increment
-    | Decrement
-    | GotRandomQuote
-    | GetRandomQuote
+import { type ViewAction, ViewActionTags } from "./actions"
+export { type ViewAction } from "./actions"
 
 //---
 //--- Events
@@ -69,13 +38,13 @@ const randomQuoteEffect: RpcEffect = {
 
 function update(model: ViewModel, action: ViewAction): Change<ViewModel, AppEffect> {
     switch (action.type) {
-        case tags.Increment:
+        case ViewActionTags.Increment:
             return { model: { count: model.count + 1 } }
-        case tags.Decrement:
+        case ViewActionTags.Decrement:
             return { model: { count: model.count - 1 } }
-        case tags.GotRandomQuote:
+        case ViewActionTags.GotRandomQuote:
             return { model: Object.assign({}, model, { quote: action.quote }) }
-        case tags.GetRandomQuote:
+        case ViewActionTags.GetRandomQuote:
             return { model: model, effect: randomQuoteEffect }
         default:
             return { model: model }
@@ -92,9 +61,9 @@ function onButtonClick(
     _event: React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
-        dispatch({ type: tags.Decrement })
+        dispatch({ type: ViewActionTags.Decrement })
     } else {
-        dispatch({ type: tags.Increment })
+        dispatch({ type: ViewActionTags.Increment })
     }
 }
 
@@ -103,7 +72,7 @@ function onIncrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: tags.Increment })
+    dispatch({ type: ViewActionTags.Increment })
 }
 
 function onDecrement(
@@ -111,7 +80,7 @@ function onDecrement(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: tags.Decrement })
+    dispatch({ type: ViewActionTags.Decrement })
 }
 
 function ComponentLayout(props: React.PropsWithChildren) {
@@ -149,7 +118,7 @@ function onGetRandomQuote(
     _model: ViewModel,
     _event: ViewEvent
 ) {
-    dispatch({ type: tags.GetRandomQuote })
+    dispatch({ type: ViewActionTags.GetRandomQuote })
 }
 
 function RandomQuote({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
@@ -183,18 +152,15 @@ function Counter({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<V
             <Text size="77px">
                 {model.count}
             </Text>
-
             <ComponentButtonMemo
                 label="Increment"
                 onClick={responders.onIncrement}
             />
-
             <Button
                 primary
                 label="Decrement"
                 onClick={responders.onDecrement}
             />
-
             <Button
                 label="Test"
                 onClick={responders.onButtonClick}
