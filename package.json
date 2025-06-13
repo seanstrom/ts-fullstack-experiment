@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "dev:client": "vite serve src/client --config vite.config.js --port 4242",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
