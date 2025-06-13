@@ -30,7 +30,7 @@ export interface EffectAction<Effect, Action> {
 
 export interface Change<Model, Effect> {
     model: Model
-    effect: Effect
+    effect?: Effect
 }
 
 export type Store<Model, Action extends AppAction, Effect extends AppEffect = AppEffect> =

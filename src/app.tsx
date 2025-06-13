@@ -2,7 +2,7 @@ import { memo as memoRender } from "react"
 import { Grommet, Box, Button, Text, grommet } from "grommet"
 
 import { type Quote } from "./data"
-import { type Change, type Store, type AppEffect } from "./store"
+import { type Change, type Store, type AppEffect, type RpcEffect } from "./store"
 import { useResponders, type Dispatcher, type InteractionHandler } from "./framework"
 
 //---
@@ -12,6 +12,7 @@ import { useResponders, type Dispatcher, type InteractionHandler } from "./frame
 export const tags = {
     Decrement: ":counter/decrement",
     Increment: ":counter/increment",
+    GetRandomQuote: ":quotes/GetRandomQuote",
     GotRandomQuote: ":quotes/GotRandomQuote",
 } as const
 
@@ -23,12 +24,20 @@ interface Decrement {
     type: typeof tags.Decrement
 }
 
+interface GetRandomQuote {
+    type: typeof tags.GetRandomQuote
+}
+
 interface GotRandomQuote {
     type: typeof tags.GotRandomQuote
     quote: Quote
 }
 
-export type ViewAction = Increment | Decrement | GotRandomQuote
+export type ViewAction =
+    Increment
+    | Decrement
+    | GotRandomQuote
+    | GetRandomQuote
 
 //---
 //--- Events
@@ -49,16 +58,27 @@ export type ViewModel = {
 //--- Update
 //---
 
-function update(model: ViewModel, action: ViewAction): Change<ViewModel, any> {
+const randomQuoteEffect: RpcEffect = {
+    type: ":effects/rpc",
+    command: {
+        type: "fetchRandomQuote",
+        procedure: "query",
+        input: (void 0),
+    }
+}
+
+function update(model: ViewModel, action: ViewAction): Change<ViewModel, AppEffect> {
     switch (action.type) {
         case tags.Increment:
-            return { model: { count: model.count + 1 }, effect: null }
+            return { model: { count: model.count + 1 } }
         case tags.Decrement:
-            return { model: { count: model.count - 1 }, effect: null }
+            return { model: { count: model.count - 1 } }
         case tags.GotRandomQuote:
-            return { model: Object.assign({ quote: action.quote }, model), effect: null }
+            return { model: Object.assign({}, model, { quote: action.quote }) }
+        case tags.GetRandomQuote:
+            return { model: model, effect: randomQuoteEffect }
         default:
-            return { model: model, effect: null }
+            return { model: model }
     }
 }
 
@@ -103,6 +123,7 @@ function ComponentLayout(props: React.PropsWithChildren) {
             cssGap={true}
             round={true}
             background={{ color: 'light-2', opacity: 'strong' }}
+            style={{ minWidth: "auto" }}
             children={props.children}
         />
     </>
@@ -123,7 +144,34 @@ function ComponentButton<
 
 const ComponentButtonMemo = memoRender(ComponentButton)
 
-function Component({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
+function onGetRandomQuote(
+    dispatch: Dispatcher<ViewAction>,
+    _model: ViewModel,
+    _event: ViewEvent
+) {
+    dispatch({ type: tags.GetRandomQuote })
+}
+
+function RandomQuote({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
+    const quote = model.quote?.quote
+    const message = quote ? quote : "Want to see a quote?"
+
+    const responders = useResponders(dispatch, model, { onGetRandomQuote })
+
+    return <>
+        <ComponentLayout>
+            <Text size="37px">
+                {message}
+            </Text>
+            <ComponentButtonMemo
+                label="Get Quote"
+                onClick={responders.onGetRandomQuote}
+            />
+        </ComponentLayout>
+    </>
+}
+
+function Counter({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher<ViewAction> }) {
     const responders = useResponders(dispatch, model, {
         onIncrement,
         onDecrement,
@@ -131,37 +179,27 @@ function Component({ model, dispatch }: { model: ViewModel, dispatch: Dispatcher
     })
 
     return <>
-        <Box direction="row" justify="evenly">
-            <ComponentLayout>
-                <Text size="77px">
-                    {model.count}
-                </Text>
+        <ComponentLayout>
+            <Text size="77px">
+                {model.count}
+            </Text>
 
-                <ComponentButtonMemo
-                    label="Increment"
-                    onClick={responders.onIncrement}
-                />
+            <ComponentButtonMemo
+                label="Increment"
+                onClick={responders.onIncrement}
+            />
 
-                <Button
-                    primary
-                    label="Decrement"
-                    onClick={responders.onDecrement}
-                />
+            <Button
+                primary
+                label="Decrement"
+                onClick={responders.onDecrement}
+            />
 
-                <Button
-                    label="Test"
-                    onClick={responders.onButtonClick}
-                />
-            </ComponentLayout>
-
-            <ComponentLayout>
-                {model.quote && (
-                    <Text size="37px">
-                        {model.quote.quote}
-                    </Text>
-                )}
-            </ComponentLayout>
-        </Box>
+            <Button
+                label="Test"
+                onClick={responders.onButtonClick}
+            />
+        </ComponentLayout>
     </>
 }
 
@@ -191,7 +229,8 @@ function App({ store }: { store: Store<ViewModel, ViewAction> }) {
     const state = store((state) => state)
     return <>
         <AppLayout>
-            <Component model={state} dispatch={state.dispatch} />
+            <Counter model={state} dispatch={state.dispatch} />
+            <RandomQuote model={state} dispatch={state.dispatch} />
         </AppLayout>
     </>
 }
@@ -205,13 +244,5 @@ export const updateApp = update
 export function initApp(): Change<ViewModel, AppEffect> {
     return {
         model: { count: 0 },
-        effect: {
-            type: ":effects/rpc",
-            command: {
-                type: "fetchRandomQuote",
-                procedure: "query",
-                input: (void 0),
-            }
-        }
     }
 }
