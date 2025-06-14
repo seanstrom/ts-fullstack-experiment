@@ -81,6 +81,10 @@ function App({ store }: { store: Store<ViewModel, ViewAction> }) {
     </>
 }
 
+//---
+//--- Main
+//---
+
 export function renderApp(store: Store<ViewModel, ViewAction>) {
     return <App store={store} />
 }

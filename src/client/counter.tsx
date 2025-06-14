@@ -6,9 +6,24 @@ import { useResponders, type Dispatcher } from "./framework"
 import { type Change, type AppEffect } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
 
+//--- Models
+
 export type CounterModel = {
     count: number
 }
+
+//--- Update
+
+export function updateCounter(model: CounterModel, action: CounterAction): Change<CounterModel, AppEffect> {
+    switch (action.type) {
+        case CounterActionTags.Increment:
+            return { model: mutate(model, draft => { draft.count = model.count + 1 }) }
+        case CounterActionTags.Decrement:
+            return { model: mutate(model, draft => { draft.count = model.count - 1 }) }
+    }
+}
+
+//--- Responders
 
 function onButtonClick(
     dispatch: Dispatcher<ViewAction>,
@@ -38,6 +53,8 @@ function onDecrement(
     dispatch({ type: CounterActionTags.Decrement })
 }
 
+//--- Views
+
 export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Dispatcher<ViewAction> }) {
     const responders = useResponders(dispatch, model, {
         onIncrement,
@@ -64,13 +81,4 @@ export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Di
             />
         </ComponentLayout>
     </>
-}
-
-export function updateCounter(model: CounterModel, action: CounterAction): Change<CounterModel, AppEffect> {
-    switch (action.type) {
-        case CounterActionTags.Increment:
-            return { model: mutate(model, draft => { draft.count = model.count + 1 }) }
-        case CounterActionTags.Decrement:
-            return { model: mutate(model, draft => { draft.count = model.count - 1 }) }
-    }
 }
