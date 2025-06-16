@@ -23,7 +23,7 @@ export function RandomQuote({ model, dispatch }: { model: QuoterModel, dispatch:
     const responders = useResponders(dispatch, model, { onGetRandomQuote })
     return <>
         <ComponentLayout>
-            <Text size="37px">
+            <Text size="30px">
                 {message}
             </Text>
             <ComponentButtonMemo

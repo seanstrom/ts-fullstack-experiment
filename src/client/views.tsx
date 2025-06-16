@@ -14,7 +14,7 @@ export function ComponentLayout(props: React.PropsWithChildren) {
             cssGap={true}
             round={true}
             background={{ color: 'light-2', opacity: 'strong' }}
-            style={{ minWidth: "auto" }}
+            style={{ minWidth: "auto", flex: "1 1" }}
             children={props.children}
         />
     </>
