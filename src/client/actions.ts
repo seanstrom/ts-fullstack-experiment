@@ -1,5 +1,7 @@
 import { type Quote } from "../data"
 
+import type { Transaction as ProseMirrorTransaction } from "prosemirror-state"
+
 export const CounterActionTags = {
     Decrement: ":counter/decrement",
     Increment: ":counter/increment",
@@ -8,6 +10,10 @@ export const CounterActionTags = {
 export const QuoterActionTags = {
     GetRandomQuote: ":quoter/GetRandomQuote",
     GotRandomQuote: ":quoter/GotRandomQuote",
+} as const
+
+export const EditorActionTags = {
+    UpdateState: ":editors/UpdateState",
 } as const
 
 export const ViewActionTags = {
@@ -36,4 +42,14 @@ export type QuoterAction = GetRandomQuote | GotRandomQuote
 
 export type CounterAction = Increment | Decrement
 
-export type ViewAction = QuoterAction | CounterAction
+export type ViewAction = QuoterAction | CounterAction | EditorAction
+
+export type EditorTransaction = ProseMirrorTransaction
+
+export interface EditorUpdateState {
+    type: typeof EditorActionTags.UpdateState,
+    editorId: string
+    transaction: EditorTransaction
+}
+
+export type EditorAction = EditorUpdateState
