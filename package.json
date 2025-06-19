@@ -27,6 +27,7 @@
     "cors": "^2.8.5",
     "grommet": "^2.47.0",
     "mutative": "^1.2.0",
+    "optics-ts": "^2.4.1",
     "polished": "^4.3.1",
     "prosemirror-commands": "^1.7.1",
     "prosemirror-history": "^1.4.1",
