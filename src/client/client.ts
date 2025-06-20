@@ -4,6 +4,9 @@ import { createClientApi, type ClientApi } from "./api"
 import { state, type RootState } from "./state"
 import { createStore, type Store, type EffectAction, type AppEffect } from "./store"
 
+import "@radix-ui/themes/styles.css"
+import "./client.css"
+
 if (import.meta.hot) {
     import.meta.hot.accept()
 }

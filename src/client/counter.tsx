@@ -1,10 +1,10 @@
-import { Button, Text } from "grommet"
 import { create as mutate } from "mutative"
+import { Text } from "@radix-ui/themes"
 
 import { CounterActionTags, WidgetActionTags, type ViewAction, type CounterAction } from "./actions"
 import { useModel, useResponder, useResponders, type Dispatcher } from "./framework"
 import type { Change, AppEffect, Store, Updater, AppAction } from "./store"
-import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
+import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "./views"
 import type { ViewModel } from "./app"
 
 //--- Models
@@ -109,23 +109,17 @@ export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Di
         onButtonClick
     })
     return <>
-        <ComponentLayout>
-            <Text size="77px">
-                {model.count}
-            </Text>
-            <ComponentButtonMemo
-                label="Increment"
-                onClick={responders.onIncrement}
-            />
-            <Button
-                primary
-                label="Decrement"
-                onClick={responders.onDecrement}
-            />
-            <Button
-                label="Test"
-                onClick={responders.onButtonClick}
-            />
+        <ComponentLayout className="bg-slate-300 p-8 gap-4 rounded-2xl">
+            <Text className="text-8xl">{model.count}</Text>
+            <ComponentButtonMemo onClick={responders.onIncrement}>
+                <Text className="text-md">Increment</Text>
+            </ComponentButtonMemo>
+            <ComponentButtonMemo onClick={responders.onDecrement}>
+                <Text className="text-md">Decrement</Text>
+            </ComponentButtonMemo>
+            <ComponentButton onClick={responders.onButtonClick}>
+                <Text className="text-md">Test</Text>
+            </ComponentButton>
         </ComponentLayout>
     </>
 }

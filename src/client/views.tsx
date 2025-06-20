@@ -1,35 +1,24 @@
 import { memo as memoRender } from "react"
-import { Box, Button } from "grommet"
 
 import type { InteractionHandler } from "./framework"
+import { Flex, Button, Text } from "@radix-ui/themes"
 
 export type ViewEvent<El = Element, Ev = Event> = React.UIEvent<El, Ev>
 
-export function ComponentLayout(props: React.PropsWithChildren) {
+export function ComponentLayout(props: React.PropsWithChildren & { className?: string }) {
     return <>
-        <Box
-            align="center"
-            pad="large"
-            gap="xsmall"
-            cssGap={true}
-            round={true}
-            background={{ color: 'light-2', opacity: 'strong' }}
-            style={{ minWidth: "auto", flex: "1 1" }}
-            children={props.children}
-        />
+        <Flex direction="column" align="center" {...props} />
     </>
 }
 
 export function ComponentButton<
     ButtonInteraction extends React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>,
     ClickHandler extends InteractionHandler<ButtonInteraction>>
-    (props: { label: string, onClick: ClickHandler }) {
+    (props: { onClick: ClickHandler } & React.PropsWithChildren) {
     return <>
-        <Button
-            primary
-            label={props.label}
-            onClick={props.onClick}
-        />
+        <Button className="btn" onClick={props.onClick}>
+            {props.children}
+        </Button>
     </>
 }
 

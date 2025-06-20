@@ -1,5 +1,5 @@
-import { Grommet, Box, grommet, type BoxExtendedProps } from "grommet"
 import { create as mutate } from "mutative"
+import { Flex, Theme } from "@radix-ui/themes"
 
 import { ProseMirrorEditor, initEditor, updateEditor, type EditorModel } from "./exampleEditor"
 import { CounterWidget, updateCounter, type CounterModel, type WidgetAction } from "./counter"
@@ -82,30 +82,15 @@ import * as Optics from "optics-ts"
 //--- Views
 //---
 
-const outerStyles: BoxExtendedProps = {
-    background: "dark-2",
-    direction: "column",
-    height: "100%",
-    justify: "center",
-}
-
-const innerStyles: BoxExtendedProps = {
-    align: "center",
-    direction: "row-responsive",
-    gap: "medium",
-    justify: "center",
-    pad: "xlarge",
-}
-
 function AppLayout(props: React.PropsWithChildren) {
     return <>
-        <Grommet full={true} theme={grommet}>
-            <Box {...outerStyles}>
-                <Box {...innerStyles}>
+        <Theme>
+            <Flex direction="column" justify="center" className="flex-1">
+                <Flex direction="row" align="center" p="96px" gap="30px">
                     {props.children}
-                </Box>
-            </Box>
-        </Grommet>
+                </Flex>
+            </Flex>
+        </Theme>
     </>
 }
 
@@ -114,20 +99,23 @@ const ProseMirrorEditorMemo = memo(ProseMirrorEditor)
 const CounterWidgetMemo = memo(CounterWidget)
 
 const counterLens = Optics.optic<ViewModel>().prop("counter")
-const counterContainerFlexStyles = { grow: 0, shrink: 1 }
-const editorContainerStyles = { flex: "2 1" }
 
 function App({ store }: { store: Store<ViewModel, ViewAction> }) {
-    const state = store((state) => state)
+    const quoterState = store((state) => state.quoter)
+    const editorState = store((state) => state.editor)
+    const dispatch = store(state => state.dispatch)
     return <>
         <AppLayout>
-            <Box flex={counterContainerFlexStyles}>
+            <Flex
+                flexGrow="0"
+                flexShrink="1"
+                className="flex-row content-center">
                 <CounterWidgetMemo store={store} optic={counterLens} />
-            </Box>
-            <RandomQuoteMemo model={state.quoter} dispatch={state.dispatch} />
-            <Box style={editorContainerStyles}>
-                <ProseMirrorEditorMemo model={state.editor} dispatch={state.dispatch} />
-            </Box>
+            </Flex>
+            <RandomQuoteMemo model={quoterState} dispatch={dispatch} />
+            <Flex flexGrow="2" flexShrink="1">
+                <ProseMirrorEditorMemo model={editorState} dispatch={dispatch} />
+            </Flex>
         </AppLayout>
     </>
 }

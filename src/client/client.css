@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+.radix-themes {
+    display: flex;
+    flex-direction: column;
+}

@@ -1,4 +1,4 @@
-import { Text } from "grommet"
+import { Text } from "@radix-ui/themes"
 
 import type { Quote } from "../data"
 import { QuoterActionTags, type ViewAction, type QuoterAction } from "./actions"
@@ -22,14 +22,15 @@ export function RandomQuote({ model, dispatch }: { model: QuoterModel, dispatch:
     const message = model.quote ? model.quote.quote : "Want to see a quote?"
     const responders = useResponders(dispatch, model, { onGetRandomQuote })
     return <>
-        <ComponentLayout>
-            <Text size="30px">
+        <ComponentLayout className="bg-slate-300 p-8">
+            <Text className="text-4xl">
                 {message}
             </Text>
-            <ComponentButtonMemo
-                label="Get Quote"
-                onClick={responders.onGetRandomQuote}
-            />
+            <ComponentButtonMemo onClick={responders.onGetRandomQuote}>
+                <Text className="text-xl">
+                    Get Quote
+                </Text>
+            </ComponentButtonMemo>
         </ComponentLayout>
     </>
 }
