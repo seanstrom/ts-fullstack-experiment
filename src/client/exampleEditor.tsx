@@ -224,20 +224,17 @@ function onUpdateState(
     _model: EditorModel,
     tx: Transaction
 ) {
-    dispatch({
-        type: EditorActionTags.UpdateState,
-        editorId: "markdown",
-        transaction: tx
-    })
+    // dispatch({
+    //     type: EditorActionTags.UpdateState,
+    //     editorId: "markdown",
+    //     transaction: tx
+    // })
 }
 
 export function ProseMirrorEditor({ model, dispatch }: { model: EditorModel, dispatch: Dispatcher<ViewAction> }) {
-    const responders = useResponders(dispatch, model, {
-        onUpdateState: onUpdateState
-    })
-
+    const responders = useResponders(dispatch, model, { onUpdateState})
     return (
-        <ProseMirror state={model.state} dispatchTransaction={responders.onUpdateState}>
+        <ProseMirror defaultState={model.state} dispatchTransaction={responders.onUpdateState}>
             <ProseMirrorDoc />
         </ProseMirror>
     );

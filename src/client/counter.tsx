@@ -2,9 +2,12 @@ import { Button, Text } from "grommet"
 import { create as mutate } from "mutative"
 
 import { CounterActionTags, type ViewAction, type CounterAction } from "./actions"
-import { useResponders, type Dispatcher } from "./framework"
-import { type Change, type AppEffect } from "./store"
+import { useModel, useResponder, useResponders, type Dispatcher } from "./framework"
+import type { Change, AppEffect, Store, Updater, AppAction, StoreSelector } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
+import type { ViewModel } from "./app"
+import { useReducer } from "react"
+import { useStore } from "zustand/react"
 
 //--- Models
 
@@ -25,10 +28,12 @@ export function updateCounter(model: CounterModel, action: CounterAction): Chang
 
 //--- Responders
 
+type ButtonMouseEvent = React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
+
 function onButtonClick(
-    dispatch: Dispatcher<ViewAction>,
+    dispatch: Dispatcher<CounterAction>,
     model: CounterModel,
-    _event: React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
+    _event: ButtonMouseEvent
 ) {
     if (model.count > 3 && model.count % 2 === 0) {
         dispatch({ type: CounterActionTags.Decrement })
@@ -38,7 +43,7 @@ function onButtonClick(
 }
 
 function onIncrement(
-    dispatch: Dispatcher<ViewAction>,
+    dispatch: Dispatcher<CounterAction>,
     _model: CounterModel,
     _event: ViewEvent
 ) {
@@ -46,7 +51,7 @@ function onIncrement(
 }
 
 function onDecrement(
-    dispatch: Dispatcher<ViewAction>,
+    dispatch: Dispatcher<CounterAction>,
     _model: CounterModel,
     _event: ViewEvent
 ) {
@@ -55,7 +60,56 @@ function onDecrement(
 
 //--- Views
 
-export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Dispatcher<ViewAction> }) {
+export interface EffectAction<Effect, Action> {
+    effect: Effect,
+    dispatch: (action: Action) => void
+}
+
+const WidgetActionTags = {
+    Update: ":widgets/update",
+} as const
+
+export interface WidgetUpdate<WidgetModel, WidgetAction extends AppAction, Effect extends AppEffect> {
+    type: typeof WidgetActionTags.Update
+    widgetId: string
+    widgetUpdater: Updater<WidgetModel, WidgetAction, Effect>
+    widgetAction: WidgetAction
+    widgetChange: Change<WidgetModel, Effect>
+}
+
+export type WidgetAction<Model, Action extends AppAction, Effect extends AppEffect> =
+    | WidgetUpdate<Model, Action, Effect>
+
+export function useWidget<Model, Action extends AppAction, Effect extends AppEffect>(
+    widgetId: string,
+    storeDispatch: Dispatcher<WidgetAction<Model, Action, Effect>>,
+    widgetModel: Model,
+    update: Updater<Model, Action, Effect>,
+) {
+    const widgetDispatch = useResponder(storeDispatch, widgetModel, (dispatch, model, widgetAction: Action) => {
+        const action: WidgetAction<Model, Action, Effect> = {
+            type: WidgetActionTags.Update,
+            widgetId,
+            widgetChange: update(model, widgetAction),
+            widgetUpdater: update,
+            widgetAction
+        }
+        dispatch(action)
+    })
+    return { model: widgetModel, dispatch: widgetDispatch }
+}
+
+import * as Optics from "optics-ts"
+
+export function CounterWidget({ store }: { store: Store<ViewModel, ViewAction> }) {
+    const widgetId = "counter"
+    const widgetOptic = Optics.optic<ViewModel>().prop("widgets").prop(widgetId)
+    const widget = useModel(store, state => Optics.get(widgetOptic)(state))
+    const { model, dispatch } = useWidget(widgetId, widget.dispatch, widget.model, updateCounter)
+    return <Counter model={model} dispatch={dispatch} />
+}
+
+export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Dispatcher<CounterAction> }) {
     const responders = useResponders(dispatch, model, {
         onIncrement,
         onDecrement,

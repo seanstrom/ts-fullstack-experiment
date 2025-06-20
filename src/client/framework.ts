@@ -1,5 +1,6 @@
 import { useCallback, useRef } from "react"
 import { usePortableLayoutEffect } from "./utils"
+import type { AppAction, Store, StoreSelector } from "./store"
 
 export type Dispatcher<Action> = (action: Action) => void
 
@@ -65,4 +66,13 @@ export function useResponders<
         result[key] = useResponder(dispatch, model, responders[key])
     }
     return result
+}
+
+export function useModel<Model, SelectedModel, Action extends AppAction>(
+    store: Store<Model, Action>,
+    modelSelector: (state: StoreSelector<Model, Action>) => SelectedModel
+) {
+    const model = store(modelSelector)
+    const dispatch = store(state => state.dispatch)
+    return { model, dispatch }
 }

@@ -1,6 +1,9 @@
 import { type Quote } from "../data"
 
 import type { Transaction as ProseMirrorTransaction } from "prosemirror-state"
+import type { AppAction, AppEffect, Change } from "./store"
+import type { WidgetAction } from "./counter"
+import type { ViewModel } from "./app"
 
 export const CounterActionTags = {
     Decrement: ":counter/decrement",
@@ -42,7 +45,7 @@ export type QuoterAction = GetRandomQuote | GotRandomQuote
 
 export type CounterAction = Increment | Decrement
 
-export type ViewAction = QuoterAction | CounterAction | EditorAction
+export type ViewAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, AppEffect>
 
 export type EditorTransaction = ProseMirrorTransaction
 

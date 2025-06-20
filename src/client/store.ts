@@ -78,3 +78,6 @@ export function createStore<
 
     return store
 }
+
+export type StoreSelector<Model, Action extends AppAction> =
+    Parameters<Parameters<Store<Model, Action>>[0]>[0]
