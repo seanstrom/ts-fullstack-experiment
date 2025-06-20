@@ -45,7 +45,7 @@ export type QuoterAction = GetRandomQuote | GotRandomQuote
 
 export type CounterAction = Increment | Decrement
 
-export type ViewAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, AppEffect>
+export type ViewAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, any, AppEffect>
 
 export type EditorTransaction = ProseMirrorTransaction
 
@@ -56,3 +56,7 @@ export interface EditorUpdateState {
 }
 
 export type EditorAction = EditorUpdateState
+
+export const WidgetActionTags = {
+    Update: ":widgets/update",
+} as const

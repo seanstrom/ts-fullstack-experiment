@@ -1,13 +1,11 @@
 import { Button, Text } from "grommet"
 import { create as mutate } from "mutative"
 
-import { CounterActionTags, type ViewAction, type CounterAction } from "./actions"
+import { CounterActionTags, WidgetActionTags, type ViewAction, type CounterAction } from "./actions"
 import { useModel, useResponder, useResponders, type Dispatcher } from "./framework"
-import type { Change, AppEffect, Store, Updater, AppAction, StoreSelector } from "./store"
+import type { Change, AppEffect, Store, Updater, AppAction } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
 import type { ViewModel } from "./app"
-import { useReducer } from "react"
-import { useStore } from "zustand/react"
 
 //--- Models
 
@@ -65,33 +63,28 @@ export interface EffectAction<Effect, Action> {
     dispatch: (action: Action) => void
 }
 
-const WidgetActionTags = {
-    Update: ":widgets/update",
-} as const
-
-export interface WidgetUpdate<WidgetModel, WidgetAction extends AppAction, Effect extends AppEffect> {
+export interface WidgetUpdate<ViewModel, WidgetModel, WidgetAction extends AppAction, Effect extends AppEffect> {
     type: typeof WidgetActionTags.Update
-    widgetId: string
-    widgetUpdater: Updater<WidgetModel, WidgetAction, Effect>
+    widgetOptic: Optics.Lens<ViewModel, any, WidgetModel>
     widgetAction: WidgetAction
     widgetChange: Change<WidgetModel, Effect>
 }
 
-export type WidgetAction<Model, Action extends AppAction, Effect extends AppEffect> =
-    | WidgetUpdate<Model, Action, Effect>
+export type WidgetAction<Model, WidgetModel, Action extends AppAction, Effect extends AppEffect> =
+    | WidgetUpdate<Model, WidgetModel, Action, Effect>
 
-export function useWidget<Model, Action extends AppAction, Effect extends AppEffect>(
-    widgetId: string,
-    storeDispatch: Dispatcher<WidgetAction<Model, Action, Effect>>,
-    widgetModel: Model,
-    update: Updater<Model, Action, Effect>,
+export function useWidget<Model, WidgetModel, Action extends AppAction, Effect extends AppEffect>(
+    widgetOptic: Optics.Lens<Model, any, WidgetModel>,
+    storeDispatch: Dispatcher<WidgetAction<Model, WidgetModel, Action, Effect>>,
+    widgetModel: WidgetModel,
+    update: Updater<WidgetModel, Action, Effect>,
 ) {
     const widgetDispatch = useResponder(storeDispatch, widgetModel, (dispatch, model, widgetAction: Action) => {
-        const action: WidgetAction<Model, Action, Effect> = {
+        const change = update(model, widgetAction)
+        const action: WidgetAction<Model, WidgetModel, Action, Effect> = {
             type: WidgetActionTags.Update,
-            widgetId,
-            widgetChange: update(model, widgetAction),
-            widgetUpdater: update,
+            widgetOptic,
+            widgetChange: change,
             widgetAction
         }
         dispatch(action)
@@ -101,12 +94,12 @@ export function useWidget<Model, Action extends AppAction, Effect extends AppEff
 
 import * as Optics from "optics-ts"
 
-export function CounterWidget({ store }: { store: Store<ViewModel, ViewAction> }) {
-    const widgetId = "counter"
-    const widgetOptic = Optics.optic<ViewModel>().prop("widgets").prop(widgetId)
-    const widget = useModel(store, state => Optics.get(widgetOptic)(state))
-    const { model, dispatch } = useWidget(widgetId, widget.dispatch, widget.model, updateCounter)
-    return <Counter model={model} dispatch={dispatch} />
+type CounterLens = Optics.Lens<ViewModel, any, CounterModel>
+
+export function CounterWidget({ store, optic: widgetOptic }: { store: Store<ViewModel, ViewAction>, optic: CounterLens }) {
+    const { model, dispatch } = useModel(store, Optics.get(widgetOptic))
+    const widget = useWidget(widgetOptic, dispatch, model, updateCounter)
+    return <Counter model={widget.model} dispatch={widget.dispatch} />
 }
 
 export function Counter({ model, dispatch }: { model: CounterModel, dispatch: Dispatcher<CounterAction> }) {

@@ -6,7 +6,7 @@ import { CounterWidget, updateCounter, type CounterModel, type WidgetAction } fr
 import { RandomQuote, updateQuoter, type QuoterModel } from "./quoter"
 import type { Change, Store, AppEffect } from "./store"
 
-import { type ViewAction, type CounterAction, type QuoterAction, type EditorAction } from "./actions"
+import { type ViewAction, type CounterAction, type QuoterAction, type EditorAction, WidgetActionTags } from "./actions"
 import { memo } from "react"
 export { type ViewAction } from "./actions"
 
@@ -37,7 +37,7 @@ function isEditorAction(action: ViewAction): action is EditorAction {
     return action.type.includes(":editors/")
 }
 
-function isWidgetAction(action: ViewAction): action is WidgetAction<ViewModel, ViewAction, AppEffect> {
+function isWidgetAction(action: ViewAction): action is WidgetAction<ViewModel, any, ViewAction, AppEffect> {
     return action.type.includes(":widgets/")
 }
 
@@ -49,7 +49,6 @@ export function updateApp(model: ViewModel, action: ViewAction): Change<ViewMode
             effect: change.effect
         }
     } else if (isCounterAction(action)) {
-        console.log("Counter Action from App", action)
         const change = updateCounter(model.counter, action)
         return {
             model: mutate(model, draft => { draft.counter = change.model }),
@@ -63,18 +62,11 @@ export function updateApp(model: ViewModel, action: ViewAction): Change<ViewMode
         }
     } else if (isWidgetAction(action)) {
         switch (action.type) {
-            case ":widgets/update": {
-                const widgetOptic = Optics.optic<ViewModel>().prop("widgets").prop(action.widgetId)
-                const widgetModel = Optics.get(widgetOptic)(model)
-                if (widgetModel) {
-                    const widgetChange = action.widgetUpdater(widgetModel, action.widgetAction)
-                    return {
-                        model: Optics.set(widgetOptic)(widgetChange.model)(model),
-                        effect: widgetChange.effect,
-                    }
-                } else {
-                    console.warn(`Widget with id ${action.widgetId} not found in widgets`)
-                    return { model: model }
+            case WidgetActionTags.Update: {
+                const modelWithChange = Optics.set(action.widgetOptic)(action.widgetChange.model)(model)
+                return {
+                    model: modelWithChange,
+                    effect: action.widgetChange.effect,
                 }
             }
         }
@@ -121,15 +113,19 @@ const RandomQuoteMemo = memo(RandomQuote)
 const ProseMirrorEditorMemo = memo(ProseMirrorEditor)
 const CounterWidgetMemo = memo(CounterWidget)
 
+const counterLens = Optics.optic<ViewModel>().prop("counter")
+const counterContainerFlexStyles = { grow: 0, shrink: 1 }
+const editorContainerStyles = { flex: "2 1" }
+
 function App({ store }: { store: Store<ViewModel, ViewAction> }) {
     const state = store((state) => state)
     return <>
         <AppLayout>
-            <Box flex={{ grow: 0, shrink: 1 }}>
-                <CounterWidgetMemo store={store} />
+            <Box flex={counterContainerFlexStyles}>
+                <CounterWidgetMemo store={store} optic={counterLens} />
             </Box>
             <RandomQuoteMemo model={state.quoter} dispatch={state.dispatch} />
-            <Box style={{ flex: "2 1" }}>
+            <Box style={editorContainerStyles}>
                 <ProseMirrorEditorMemo model={state.editor} dispatch={state.dispatch} />
             </Box>
         </AppLayout>
