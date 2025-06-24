@@ -1,9 +1,9 @@
-import { type Quote } from "../data"
-
+import * as Optics from "optics-ts"
 import type { Transaction as ProseMirrorTransaction } from "prosemirror-state"
-import type { AppAction, AppEffect, Change } from "./store"
-import type { WidgetAction } from "./counter"
-import type { ViewModel } from "./app"
+
+import type { Quote } from "../data"
+import type { StoreAction, AppEffect, Change } from "./store"
+import type { AppModel } from "./app"
 
 export const CounterActionTags = {
     Decrement: ":counter/decrement",
@@ -45,7 +45,7 @@ export type QuoterAction = GetRandomQuote | GotRandomQuote
 
 export type CounterAction = Increment | Decrement
 
-export type ViewAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, any, AppEffect>
+export type AppAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, any, AppEffect>
 
 export type EditorTransaction = ProseMirrorTransaction
 
@@ -60,3 +60,32 @@ export type EditorAction = EditorUpdateState
 export const WidgetActionTags = {
     Update: ":widgets/update",
 } as const
+
+export type AppWidgetAction = WidgetAction<AppModel, any, AppAction, AppEffect>
+
+export interface WidgetUpdate<ViewModel, WidgetModel, WidgetAction extends StoreAction, Effect extends AppEffect> {
+    type: typeof WidgetActionTags.Update
+    widgetOptic: Optics.Lens<ViewModel, any, WidgetModel>
+    widgetAction: WidgetAction
+    widgetChange: Change<WidgetModel, Effect>
+}
+
+export type WidgetAction<Model, WidgetModel, Action extends StoreAction, Effect extends AppEffect> =
+    | WidgetUpdate<Model, WidgetModel, Action, Effect>
+
+
+export function isQuoterAction(action: AppAction): action is QuoterAction {
+    return action.type.includes(":quoter/")
+}
+
+export function isCounterAction(action: AppAction): action is CounterAction {
+    return action.type.includes(":counter/")
+}
+
+export function isEditorAction(action: AppAction): action is EditorAction {
+    return action.type.includes(":editors/")
+}
+
+export function isWidgetAction(action: AppAction): action is AppWidgetAction {
+    return action.type.includes(":widgets/")
+}

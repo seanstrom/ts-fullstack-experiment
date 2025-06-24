@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react"
 import { usePortableLayoutEffect } from "./utils"
-import type { AppAction, Store, StoreSelector } from "./store"
+import type { StoreAction, Store, StoreSelector } from "./store"
+import { WidgetActionTags, type WidgetAction } from "./actions"
 
 export type Dispatcher<Action> = (action: Action) => void
 
@@ -68,11 +69,35 @@ export function useResponders<
     return result
 }
 
-export function useModel<Model, SelectedModel, Action extends AppAction>(
+export function useModel<Model, SelectedModel, Action extends StoreAction>(
     store: Store<Model, Action>,
     modelSelector: (state: StoreSelector<Model, Action>) => SelectedModel
 ) {
     const model = store(modelSelector)
     const dispatch = store(state => state.dispatch)
     return { model, dispatch }
+}
+
+export interface EffectAction<Effect, Action> {
+    effect: Effect,
+    dispatch: (action: Action) => void
+}
+
+export function useWidget<Model, WidgetModel, Action extends StoreAction, Effect extends AppEffect>(
+    widgetOptic: Optics.Lens<Model, any, WidgetModel>,
+    storeDispatch: Dispatcher<WidgetAction<Model, WidgetModel, Action, Effect>>,
+    widgetModel: WidgetModel,
+    update: Updater<WidgetModel, Action, Effect>,
+) {
+    const widgetDispatch = useResponder(storeDispatch, widgetModel, (dispatch, model, widgetAction: Action) => {
+        const change = update(model, widgetAction)
+        const action: WidgetAction<Model, WidgetModel, Action, Effect> = {
+            type: WidgetActionTags.Update,
+            widgetOptic,
+            widgetChange: change,
+            widgetAction
+        }
+        dispatch(action)
+    })
+    return { model: widgetModel, dispatch: widgetDispatch }
 }

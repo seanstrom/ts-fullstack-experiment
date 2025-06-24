@@ -13,7 +13,7 @@ import { keymap } from "prosemirror-keymap"
 import { baseKeymap } from "prosemirror-commands"
 
 
-import { type ViewAction, type EditorAction, EditorActionTags } from "./actions"
+import { type AppAction, type EditorAction, EditorActionTags } from "./actions"
 import { useResponders, type Dispatcher } from "./framework"
 import type { Change, AppEffect } from "./store"
 
@@ -231,7 +231,7 @@ function onUpdateState(
     // })
 }
 
-export function ProseMirrorEditor({ model, dispatch }: { model: EditorModel, dispatch: Dispatcher<ViewAction> }) {
+export function ProseMirrorEditor({ model, dispatch }: { model: EditorModel, dispatch: Dispatcher<AppAction> }) {
     const responders = useResponders(dispatch, model, { onUpdateState})
     return (
         <ProseMirror defaultState={model.state} dispatchTransaction={responders.onUpdateState}>

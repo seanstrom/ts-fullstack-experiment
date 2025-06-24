@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { devtools, redux } from "zustand/middleware"
 import type { ClientApiEffect } from "./api"
+import { state, type Controller, type StateController } from "./state"
 
 const tags = {
     Rpc: ":effects/rpc",
@@ -17,7 +18,7 @@ export interface TimeEffect {
     command: {}
 }
 
-export interface AppAction {
+export interface StoreAction {
     type: string
 }
 
@@ -33,51 +34,84 @@ export interface Change<Model, Effect> {
     effect?: Effect
 }
 
-export type Store<Model, Action extends AppAction, Effect extends AppEffect = AppEffect> =
+export type Store<Model, Action extends StoreAction, Effect extends AppEffect = AppEffect> =
     ReturnType<typeof createStore<Model, Action, Effect>>
 
-export type Updater<Model, Action extends AppAction, Effect extends AppEffect> =
+export type Updater<Model, Action extends StoreAction, Effect extends AppEffect> =
     (model: Model, action: Action) => Change<Model, Effect>
 
 export type Reducer<Model, Action> =
     (model: Model, action: Action) => Model
 
-export function createStore<
-    Model,
-    Action extends AppAction,
-    Effect extends AppEffect,
->(
-    init: () => Change<Model, Effect>,
-    update: (model: Model, action: Action) => Change<Model, Effect>,
-    forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>
-) {
-    const ports = { dispatch: (_action: Action) => { } }
+class StoreRunner<Model, Action, Effect> {
+    ports: {
+        dispatch: (action: Action) => void
+        forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+    }
 
-    const initialChange = init()
-    const store = create(devtools(redux<Model, Action>((model, action) => {
-        const change = update(model, action)
+    stateController: StateController<Model, Action, Effect>
+
+    constructor(stateController: StateController<Model, Action, Effect>, forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>) {
+        this.ports = {
+            dispatch: (_action) => { },
+            forward: forward
+        }
+
+        this.stateController = stateController
+    }
+
+    init(flags?: any) {
+        return this.stateController.controller.init(flags)
+    }
+
+    update(model: Model, action: Action) {
+        return this.stateController.controller.update(model, action)
+    }
+}
+
+function createZustandStore<
+    Model,
+    Action extends StoreAction,
+    Effect extends AppEffect
+>(
+    storeRunner: StoreRunner<Model, Action, Effect>,
+    initialModel: Model
+) {
+    return create(devtools(redux<Model, Action>((model, action) => {
+        const change = storeRunner.update(model, action)
         console.log("update change: ", change)
         if (change.effect) {
-            forward({
+            storeRunner.ports.forward({
                 effect: change.effect,
-                dispatch: ports.dispatch,
+                dispatch: storeRunner.ports.dispatch,
             })
         }
         return change.model
-    }, initialChange.model)))
+    }, initialModel)))
+}
 
-    const dispatch = (action: Action) => { store.dispatch(action) }
-    ports.dispatch = dispatch
+export function createStore<
+    Model,
+    Action extends StoreAction,
+    Effect extends AppEffect,
+>(
+    stateController: StateController<Model, Action, Effect>,
+    forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+) {
+    const storeRunner = new StoreRunner(stateController, forward)
+    const initialChange = storeRunner.init()
+    const store = createZustandStore(storeRunner, initialChange.model)
+    storeRunner.ports.dispatch = store.dispatch
 
     if (initialChange.effect) {
         forward({
             effect: initialChange.effect,
-            dispatch: ports.dispatch,
+            dispatch: storeRunner.ports.dispatch,
         })
     }
 
     return store
 }
 
-export type StoreSelector<Model, Action extends AppAction> =
+export type StoreSelector<Model, Action extends StoreAction> =
     Parameters<Parameters<Store<Model, Action>>[0]>[0]

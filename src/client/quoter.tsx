@@ -1,7 +1,7 @@
 import { Text } from "@radix-ui/themes"
 
 import type { Quote } from "../data"
-import { QuoterActionTags, type ViewAction, type QuoterAction } from "./actions"
+import { QuoterActionTags, type AppAction, type QuoterAction } from "./actions"
 import { useResponders, type Dispatcher } from "./framework"
 import { type Change, type AppEffect, type RpcEffect } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
@@ -11,14 +11,14 @@ export type QuoterModel = {
 }
 
 function onGetRandomQuote(
-    dispatch: Dispatcher<ViewAction>,
+    dispatch: Dispatcher<AppAction>,
     _model: QuoterModel,
     _event: ViewEvent
 ) {
     dispatch({ type: QuoterActionTags.GetRandomQuote })
 }
 
-export function RandomQuote({ model, dispatch }: { model: QuoterModel, dispatch: Dispatcher<ViewAction> }) {
+export function RandomQuote({ model, dispatch }: { model: QuoterModel, dispatch: Dispatcher<AppAction> }) {
     const message = model.quote ? model.quote.quote : "Want to see a quote?"
     const responders = useResponders(dispatch, model, { onGetRandomQuote })
     return <>

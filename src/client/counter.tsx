@@ -1,11 +1,12 @@
+import * as Optics from "optics-ts"
 import { create as mutate } from "mutative"
 import { Text } from "@radix-ui/themes"
 
-import { CounterActionTags, WidgetActionTags, type ViewAction, type CounterAction } from "./actions"
-import { useModel, useResponder, useResponders, type Dispatcher } from "./framework"
-import type { Change, AppEffect, Store, Updater, AppAction } from "./store"
+import type { AppModel } from "./app"
+import { CounterActionTags, type AppAction, type CounterAction } from "./actions"
+import { useModel, useWidget, useResponders, type Dispatcher } from "./framework"
+import type { Change, AppEffect, Store } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "./views"
-import type { ViewModel } from "./app"
 
 //--- Models
 
@@ -58,45 +59,9 @@ function onDecrement(
 
 //--- Views
 
-export interface EffectAction<Effect, Action> {
-    effect: Effect,
-    dispatch: (action: Action) => void
-}
+type CounterLens = Optics.Lens<AppModel, any, CounterModel>
 
-export interface WidgetUpdate<ViewModel, WidgetModel, WidgetAction extends AppAction, Effect extends AppEffect> {
-    type: typeof WidgetActionTags.Update
-    widgetOptic: Optics.Lens<ViewModel, any, WidgetModel>
-    widgetAction: WidgetAction
-    widgetChange: Change<WidgetModel, Effect>
-}
-
-export type WidgetAction<Model, WidgetModel, Action extends AppAction, Effect extends AppEffect> =
-    | WidgetUpdate<Model, WidgetModel, Action, Effect>
-
-export function useWidget<Model, WidgetModel, Action extends AppAction, Effect extends AppEffect>(
-    widgetOptic: Optics.Lens<Model, any, WidgetModel>,
-    storeDispatch: Dispatcher<WidgetAction<Model, WidgetModel, Action, Effect>>,
-    widgetModel: WidgetModel,
-    update: Updater<WidgetModel, Action, Effect>,
-) {
-    const widgetDispatch = useResponder(storeDispatch, widgetModel, (dispatch, model, widgetAction: Action) => {
-        const change = update(model, widgetAction)
-        const action: WidgetAction<Model, WidgetModel, Action, Effect> = {
-            type: WidgetActionTags.Update,
-            widgetOptic,
-            widgetChange: change,
-            widgetAction
-        }
-        dispatch(action)
-    })
-    return { model: widgetModel, dispatch: widgetDispatch }
-}
-
-import * as Optics from "optics-ts"
-
-type CounterLens = Optics.Lens<ViewModel, any, CounterModel>
-
-export function CounterWidget({ store, optic: widgetOptic }: { store: Store<ViewModel, ViewAction>, optic: CounterLens }) {
+export function CounterWidget({ store, optic: widgetOptic }: { store: Store<AppModel, AppAction>, optic: CounterLens }) {
     const { model, dispatch } = useModel(store, Optics.get(widgetOptic))
     const widget = useWidget(widgetOptic, dispatch, model, updateCounter)
     return <Counter model={widget.model} dispatch={widget.dispatch} />
