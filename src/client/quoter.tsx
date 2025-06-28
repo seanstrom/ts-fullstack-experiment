@@ -1,4 +1,5 @@
 import { Text } from "@radix-ui/themes"
+import { create as mutate } from "mutative"
 
 import type { Quote } from "../data"
 import { QuoterActionTags, type AppAction, type QuoterAction } from "./actions"
@@ -48,7 +49,7 @@ const randomQuoteEffect: RpcEffect = {
 export function updateQuoter(model: QuoterModel, action: QuoterAction): Change<QuoterModel, AppEffect> {
     switch (action.type) {
         case QuoterActionTags.GotRandomQuote:
-            return { model: Object.assign({}, model, { quote: action.quote }) }
+            return { model: mutate(model, (draft) => { draft.quote = action.quote }) }
         case QuoterActionTags.GetRandomQuote:
             return { model: model, effect: randomQuoteEffect }
     }
