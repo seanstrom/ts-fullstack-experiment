@@ -2,7 +2,8 @@ import * as Optics from "optics-ts"
 import type { Transaction as ProseMirrorTransaction } from "prosemirror-state"
 
 import type { Quote } from "../data"
-import type { StoreAction, AppEffect, Change } from "./store"
+import type { AppEffect } from "./effects"
+import type { StoreAction, Change } from "./store"
 import type { AppModel } from "./app"
 
 export const CounterActionTags = {

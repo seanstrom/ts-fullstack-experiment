@@ -1,6 +1,7 @@
 import * as appController from "./app/appController"
 import type { Root } from "react-dom/client"
-import type { Change, Store, StoreAction, AppEffect } from "./store"
+import type { AppEffect } from "./effects"
+import type { Change, Store, StoreAction } from "./store"
 import type { AppModel, AppAction } from "./app"
 import type { ClientApi } from "./api"
 

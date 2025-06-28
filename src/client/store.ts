@@ -1,28 +1,11 @@
 import { create } from "zustand"
 import { devtools, redux } from "zustand/middleware"
-import type { ClientApiEffect } from "./api"
-import { state, type Controller, type StateController } from "./state"
-
-const tags = {
-    Rpc: ":effects/rpc",
-    Time: ":effects/time"
-} as const
-
-export interface RpcEffect {
-    type: typeof tags.Rpc
-    command: ClientApiEffect
-}
-
-export interface TimeEffect {
-    type: typeof tags.Time
-    command: {}
-}
+import type { AppEffect } from "./effects"
+import type { StateController } from "./state"
 
 export interface StoreAction {
     type: string
 }
-
-export type AppEffect = RpcEffect | TimeEffect
 
 export interface EffectAction<Effect, Action> {
     effect: Effect,

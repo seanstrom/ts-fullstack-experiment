@@ -2,8 +2,9 @@ import { Text } from "@radix-ui/themes"
 
 import type { Quote } from "../data"
 import { QuoterActionTags, type AppAction, type QuoterAction } from "./actions"
+import type { AppEffect, RpcEffect } from "./effects"
 import { useResponders, type Dispatcher } from "./framework"
-import { type Change, type AppEffect, type RpcEffect } from "./store"
+import { type Change } from "./store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "./views"
 
 export type QuoterModel = {
