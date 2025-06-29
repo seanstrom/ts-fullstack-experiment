@@ -4,7 +4,8 @@ import { create as mutate } from "mutative"
 import { initEditor, updateEditor, type EditorModel } from "../exampleEditor"
 import { updateCounter, type CounterModel } from "../counter"
 import { updateQuoter, type QuoterModel } from "../quoter"
-import type { Change, AppEffect } from "../store"
+import type { AppEffect } from "../effects"
+import type { Change } from "../store"
 
 import {
     isCounterAction,
