@@ -15,7 +15,8 @@ import { baseKeymap } from "prosemirror-commands"
 
 import { type AppAction, type EditorAction, EditorActionTags } from "./actions"
 import { useResponders, type Dispatcher } from "./framework"
-import type { Change, AppEffect } from "./store"
+import type { Change } from "./store"
+import type { AppEffect } from "./effects"
 
 import "./exampleEditor.css"
 
@@ -72,7 +73,6 @@ import {
     ProseMirrorDoc,
     reactKeys,
 } from "@handlewithcare/react-prosemirror";
-import { useState } from "react";
 
 import {
     wrapIn, setBlockType, chainCommands, toggleMark, exitCode,

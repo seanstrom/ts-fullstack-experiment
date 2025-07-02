@@ -5,7 +5,8 @@ import { Text } from "@radix-ui/themes"
 import type { AppModel } from "./app"
 import { CounterActionTags, type AppAction, type CounterAction } from "./actions"
 import { useModel, useWidget, useResponders, type Dispatcher } from "./framework"
-import type { Change, AppEffect, Store } from "./store"
+import type { Change, Store } from "./store"
+import type { AppEffect } from "./effects"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "./views"
 
 //--- Models
@@ -27,7 +28,7 @@ export function updateCounter(model: CounterModel, action: CounterAction): Chang
 
 //--- Responders
 
-type ButtonMouseEvent = React.MouseEvent<HTMLButtonElement & HTMLAnchorElement>
+type ButtonMouseEvent = React.MouseEvent<HTMLButtonElement>
 
 function onButtonClick(
     dispatch: Dispatcher<CounterAction>,

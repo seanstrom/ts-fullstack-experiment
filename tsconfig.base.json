@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
-    "outDir": "dist",
+    "paths": {
+      "@app/*": ["modules/app/src/*"]
+    },
+
+    "types": ["vitest/globals"],
 
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
@@ -33,7 +37,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true
-  },
-  "exclude": ["node_modules", "dist"]
+  }
 }
 

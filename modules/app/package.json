@@ -1,0 +1,40 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:client": "vite serve src/client --config vite.config.js --port 4242",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@handlewithcare/react-prosemirror": "^2.4.4",
+    "@radix-ui/themes": "^3.2.1",
+    "@trpc/client": "^11.3.1",
+    "@trpc/server": "^11.3.1",
+    "@types/cors": "^2.8.19",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "cors": "^2.8.5",
+    "grommet": "^2.47.0",
+    "mutative": "^1.2.0",
+    "optics-ts": "^2.4.1",
+    "polished": "^4.3.1",
+    "prosemirror-commands": "^1.7.1",
+    "prosemirror-history": "^1.4.1",
+    "prosemirror-inputrules": "^1.5.0",
+    "prosemirror-keymap": "^1.2.3",
+    "prosemirror-markdown": "^1.13.2",
+    "prosemirror-model": "^1.25.1",
+    "prosemirror-schema-list": "^1.5.1",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-view": "1.39.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-reconciler": "0.32.0",
+    "styled-components": "^6.1.18",
+    "tailwind-variants": "^1.0.0",
+    "zod": "^3.25.57",
+    "zustand": "^5.0.5"
+  }
+}
