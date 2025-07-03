@@ -2,11 +2,12 @@ import { describe, it, expect } from "vitest"
 import { optic } from "optics-ts"
 import { create as mutate } from "mutative"
 
+import { WidgetActionTags } from "@app/client/actions"
+
 import {
     CounterActionTags,
-    WidgetActionTags,
-    type CounterAction,
-} from "@app/client/actions"
+    type CounterAction
+} from "@app/client/counter/counterController"
 
 import { initApp, updateApp, type AppModel } from "@app/client/app/appController"
 
