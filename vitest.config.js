@@ -7,6 +7,7 @@ export default defineConfig({
         globals: true,
         include: [
             'modules/**/src/**/*.test.ts',
+            'modules/**/tests/**/*.test.ts',
             'modules/tests/**/*.test.ts'
         ],
         environment: 'node',
