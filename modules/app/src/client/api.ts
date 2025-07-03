@@ -1,4 +1,4 @@
-import type { AppRouter } from "src/server"
+import type { AppRouter } from "@app/server"
 
 import { createTRPCClient, httpBatchLink, type Resolver } from '@trpc/client';
 
