@@ -58,7 +58,6 @@ function forwardEffects(state: RootState<AppModel, AppAction, AppEffect>) {
 }
 
 function main(state: RootState<AppModel, AppAction, AppEffect>, elementId: string): void {
-    console.log(state)
     if (state.renderRoot && state.store) {
         state.controller = appController
         renderRoot(state.store)
@@ -73,7 +72,6 @@ function main(state: RootState<AppModel, AppAction, AppEffect>, elementId: strin
             renderRoot(state.store)
         }
     }
-    console.log(state)
 }
 
 main(state, rootElementId)
