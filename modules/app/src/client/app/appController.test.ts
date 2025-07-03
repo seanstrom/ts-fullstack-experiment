@@ -11,7 +11,7 @@ import {
 import { initApp, updateApp, type AppModel } from "@app/client/app/appController"
 
 describe("Update App function", () => {
-    it("returns a change to the widget model", () => {
+    it("returns a change to the widget model with standard optic", () => {
         const appModel = initApp().model
 
         const widgetAction: CounterAction = {
@@ -36,14 +36,19 @@ describe("Update App function", () => {
         }))
     })
 
-    it("returns a change to the widget model", () => {
+    it("returns a change to the widget model custom optic", () => {
         const appModel = initApp().model
 
         const widgetAction: CounterAction = {
             type: CounterActionTags.Increment
         }
 
-        const widgetOptic = optic<AppModel>().prop("widgets").prop("counters").prop("counter-id-1")
+        const counterId = "counter-id-1"
+
+        const widgetOptic = optic<AppModel>()
+            .prop("widgets")
+            .prop("counters")
+            .prop(counterId)
 
         const appAction = {
             type: WidgetActionTags.Update,

@@ -20,7 +20,7 @@ export type AppModel = {
     counter: CounterModel
     quoter: QuoterModel
     editor: EditorModel
-    widgets: Record<string, any> & { counters: Record<string, CounterModel> }
+    widgets: { counters: Record<string, CounterModel> }
 }
 
 export function initApp(): Change<AppModel, AppEffect> {
@@ -30,7 +30,6 @@ export function initApp(): Change<AppModel, AppEffect> {
             quoter: {},
             editor: initEditor("# Header 1"),
             widgets: {
-                "counter": { count: 0 },
                 counters: {}
             },
         },
