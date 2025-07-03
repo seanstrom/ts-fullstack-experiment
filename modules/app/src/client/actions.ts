@@ -5,11 +5,7 @@ import type { Quote } from "../data"
 import type { AppEffect } from "./effects"
 import type { StoreAction, Change } from "./store"
 import type { AppModel } from "./app"
-
-export const CounterActionTags = {
-    Decrement: ":counter/decrement",
-    Increment: ":counter/increment",
-} as const
+import { CounterActionTags, type CounterAction } from "@app/client/counter/counterController"
 
 export const QuoterActionTags = {
     GetRandomQuote: ":quoter/GetRandomQuote",
@@ -25,14 +21,6 @@ export const ViewActionTags = {
     Qouter: QuoterActionTags,
 } as const
 
-export interface Increment {
-    type: typeof CounterActionTags.Increment
-}
-
-export interface Decrement {
-    type: typeof CounterActionTags.Decrement
-}
-
 export interface GetRandomQuote {
     type: typeof QuoterActionTags.GetRandomQuote
 }
@@ -43,8 +31,6 @@ export interface GotRandomQuote {
 }
 
 export type QuoterAction = GetRandomQuote | GotRandomQuote
-
-export type CounterAction = Increment | Decrement
 
 export type AppAction = QuoterAction | CounterAction | EditorAction | WidgetAction<any, any, any, AppEffect>
 

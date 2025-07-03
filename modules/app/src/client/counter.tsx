@@ -1,30 +1,12 @@
 import * as Optics from "optics-ts"
-import { create as mutate } from "mutative"
 import { Text } from "@radix-ui/themes"
 
-import type { AppModel } from "./app"
-import { CounterActionTags, type AppAction, type CounterAction } from "./actions"
-import { useModel, useWidget, useResponders, type Dispatcher } from "./framework"
-import type { Change, Store } from "./store"
-import type { AppEffect } from "./effects"
-import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "./views"
-
-//--- Models
-
-export type CounterModel = {
-    count: number
-}
-
-//--- Update
-
-export function updateCounter(model: CounterModel, action: CounterAction): Change<CounterModel, AppEffect> {
-    switch (action.type) {
-        case CounterActionTags.Increment:
-            return { model: mutate(model, draft => { draft.count = model.count + 1 }) }
-        case CounterActionTags.Decrement:
-            return { model: mutate(model, draft => { draft.count = model.count - 1 }) }
-    }
-}
+import type { AppModel } from "@app/client/app"
+import { CounterActionTags, updateCounter, type CounterAction, type CounterModel } from "@app/client/counter/counterController"
+import type { AppAction } from "@app/client/actions"
+import { useModel, useWidget, useResponders, type Dispatcher } from "@app/client/framework"
+import type { Store } from "@app/client/store"
+import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "@app/client/views"
 
 //--- Responders
 
