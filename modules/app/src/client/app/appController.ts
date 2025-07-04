@@ -4,12 +4,14 @@ import { create as mutate } from "mutative"
 import { initEditor, updateEditor, type EditorModel } from "@app/client/exampleEditor/exampleEditorController"
 import { initCounter, updateCounter, type CounterModel } from "@app/client/counter/counterController"
 import { updateQuoter, type QuoterModel } from "@app/client/quoter/quoterController"
-import type { AppEffect } from "@app/client/app/appEffects"
+import type { AppEffect, RpcEffect } from "@app/client/app/appEffects"
 import type { Change } from "@app/client/store"
 
 import {
+    FileActionTags,
     isCounterAction,
     isEditorAction,
+    isFileAction,
     isQuoterAction,
     isWidgetAction,
     WidgetActionTags,
@@ -21,11 +23,24 @@ export type AppModel = {
     quoter: QuoterModel
     editor: EditorModel
     widgets: { counters: Record<string, CounterModel> }
+    files: Record<string, string>
+}
+
+const fileContentEffect: RpcEffect = {
+    type: ":effects/rpc",
+    command: {
+        type: "fetchFileContent",
+        procedure: "query",
+        input: {
+            fileId: "Test.md"
+        },
+    }
 }
 
 export function initApp(): Change<AppModel, AppEffect> {
     return {
         model: {
+            files: {},
             counter: initCounter().model,
             quoter: {},
             editor: initEditor("# Header 1").model,
@@ -33,6 +48,7 @@ export function initApp(): Change<AppModel, AppEffect> {
                 counters: {}
             },
         },
+        effect: fileContentEffect
     }
 }
 
@@ -62,6 +78,17 @@ export function updateApp(model: AppModel, action: AppAction): Change<AppModel, 
                 return {
                     model: modelWithChange,
                     effect: action.widgetChange.effect,
+                }
+            }
+        }
+    } 
+    else if (isFileAction(action)) {
+        switch (action.type) {
+            case FileActionTags.GotFileContent: {
+                return {
+                    model: mutate(model, draft => {
+                        draft.files[action.fileId] = action.fileContent
+                    })
                 }
             }
         }

@@ -7,11 +7,24 @@ import type { CounterAction } from "@app/client/counter/counterController"
 import type { QuoterAction } from "@app/client/quoter/quoterController"
 import type { EditorAction } from "@app/client/exampleEditor/exampleEditorController"
 
+export type FileAction = GotFileContent
+
+export const FileActionTags = {
+    GotFileContent: ":file/GotFileContent",
+} as const
+
+export interface GotFileContent {
+    type: typeof FileActionTags.GotFileContent 
+    fileContent: string
+    fileId: string
+}
+
 export type AppAction =
     QuoterAction
     | CounterAction
     | EditorAction
     | WidgetAction<any, any, any, AppEffect>
+    | FileAction
 
 export const WidgetActionTags = {
     Update: ":widgets/update",
@@ -43,4 +56,8 @@ export function isEditorAction(action: AppAction): action is EditorAction {
 
 export function isWidgetAction(action: AppAction): action is AppWidgetAction {
     return action.type.includes(":widgets/")
+}
+
+export function isFileAction(action: AppAction): action is FileAction {
+    return action.type.includes(":file/")
 }

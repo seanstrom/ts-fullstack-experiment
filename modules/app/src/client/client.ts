@@ -37,6 +37,15 @@ async function runEffect(api: ClientApi, effectAction: EffectAction<AppEffect, A
                     const response = await api[rpcEffect.type][rpcEffect.procedure](rpcEffect.input)
                     return response
                 }
+                case "fetchFileContent": {
+                    const response = await api[rpcEffect.type][rpcEffect.procedure](rpcEffect.input)
+                    effectAction.dispatch({
+                        type: ":file/GotFileContent",
+                        fileId: rpcEffect.input.fileId,
+                        fileContent: response.fileContent
+                    })
+                    return response
+                }
                 default: {
                     return console.log("Warning: rpc effect not implemented")
                 }
