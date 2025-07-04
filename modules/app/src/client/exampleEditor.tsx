@@ -198,14 +198,14 @@ export type EditorModel = {
     state: EditorState
 }
 
-export function initEditor(markdownContent: string): EditorModel {
+export function initEditor(markdownContent: string): Change<EditorModel, AppEffect> {
     const state = EditorState.create({
         schema,
         doc: defaultMarkdownParser.parse(markdownContent),
         plugins: editorPlugins
     })
 
-    return { state }
+    return { model: { state } }
 }
 
 export function updateEditor(model: EditorModel, action: EditorAction): Change<EditorModel, AppEffect> {

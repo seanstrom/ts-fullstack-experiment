@@ -28,7 +28,7 @@ export function initApp(): Change<AppModel, AppEffect> {
         model: {
             counter: { count: 0 },
             quoter: {},
-            editor: initEditor("# Header 1"),
+            editor: initEditor("# Header 1").model,
             widgets: {
                 counters: {}
             },
