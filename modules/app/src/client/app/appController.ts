@@ -2,7 +2,7 @@ import * as Optics from "optics-ts"
 import { create as mutate } from "mutative"
 
 import { initEditor, updateEditor, type EditorModel } from "../exampleEditor"
-import { updateCounter, type CounterModel } from "@app/client/counter/counterController"
+import { initCounter, updateCounter, type CounterModel } from "@app/client/counter/counterController"
 import { updateQuoter, type QuoterModel } from "@app/client/quoter/quoterController"
 import type { AppEffect } from "@app/client/effects"
 import type { Change } from "@app/client/store"
@@ -26,7 +26,7 @@ export type AppModel = {
 export function initApp(): Change<AppModel, AppEffect> {
     return {
         model: {
-            counter: { count: 0 },
+            counter: initCounter().model,
             quoter: {},
             editor: initEditor("# Header 1").model,
             widgets: {

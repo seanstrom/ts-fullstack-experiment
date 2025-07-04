@@ -36,3 +36,7 @@ export function updateCounter(model: CounterModel, action: CounterAction): Chang
             return { model: mutate(model, draft => { draft.count = model.count - 1 }) }
     }
 }
+
+export function initCounter(initialCount: number = 0): Change<CounterModel, AppEffect> {
+    return { model: { count: initialCount } }
+}

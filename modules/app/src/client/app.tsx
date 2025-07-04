@@ -2,17 +2,17 @@ import * as Optics from "optics-ts"
 import { memo } from "react"
 import { Flex, Theme } from "@radix-ui/themes"
 
-import type { AppModel } from "./app/appController"
-import { ProseMirrorEditor } from "./exampleEditor"
-import { CounterWidget } from "./counter"
-import { RandomQuote } from "./quoter"
-import type { Store } from "./store"
+import type { AppModel } from "@app/client/app/appController"
+import { ProseMirrorEditor } from "@app/client/exampleEditor"
+import { CounterWidget } from "@app/client/counter/counterView"
+import { RandomQuote } from "@app/client/quoter"
+import type { Store } from "@app/client/store"
 
-import type { AppAction } from "./actions"
-export type { AppAction } from "./actions"
-export type { AppModel } from "./app/appController"
+import type { AppAction } from "@app/client/actions"
+export type { AppAction } from "@app/client/actions"
+export type { AppModel } from "@app/client/app/appController"
 
-export { initApp as init, updateApp as update } from "./app/appController"
+export { initApp as init, updateApp as update } from "@app/client/app/appController"
 
 //---
 //--- Views
