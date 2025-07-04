@@ -53,3 +53,7 @@ export function App({ store }: { store: Store<AppModel, AppAction> }) {
         </AppLayout>
     </>
 }
+
+export function RenderApp(props: { store: Store<AppModel, AppAction> }) {
+    return <App store={props.store} />
+}

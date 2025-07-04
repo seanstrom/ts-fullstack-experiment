@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client"
-import { App, type AppAction, type AppModel } from "@app/client/app/appView"
+import { RenderApp, type AppAction, type AppModel } from "@app/client/app/appView"
 import * as appController from "@app/client/app/appController"
 import { createClientApi, type ClientApi } from "@app/client/api"
 import type { AppEffect } from "@app/client/app/appEffects"
@@ -16,7 +16,7 @@ if (import.meta.hot) {
 const rootElementId = "root"
 
 function renderRoot(store: Store<AppModel, AppAction>): void {
-    state.renderRoot?.render(App({ store }))
+    state.renderRoot?.render(RenderApp({ store }))
 }
 
 async function runEffect(api: ClientApi, effectAction: EffectAction<AppEffect, AppAction>) {
