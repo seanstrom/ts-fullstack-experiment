@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  /* color: #fff; */
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  /* background-image: linear-gradient(to bottom, #020917, #101725); */
+}
+
+body,
+html {
+  margin: 0;
+  /* max-width: 642px; */
+  /* margin: 0 auto; */
+  /* overflow: hidden; */
+  height: 100%;
+}
+
+.Editors {
+  max-width: 1200px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.RichEditor,
+.RawEditor {
+  flex: 1 1 100%;
+}
+
+.RawEditor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.RichEditor .remirror-editor {
+  background-color: #f6e8d9;
+}
+
+.RawEditor .remirror-editor-wrapper,
+.RawEditor .remirror-editor {
+    height: 100%;
+}
+
+.Editors .ProseMirror {
+  outline: none;
+}
+
+.RichEditor .ProseMirror h1 {
+  font-family: "Bitter";
+}
+
+.RichEditor .ProseMirror {
+  font-family: "Recursive";
+}

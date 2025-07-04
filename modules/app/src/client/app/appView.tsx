@@ -7,12 +7,14 @@ import { ProseMirrorEditor } from "@app/client/exampleEditor/exampleEditorView"
 import { CounterWidget } from "@app/client/counter/counterView"
 import { RandomQuote } from "@app/client/quoter/quoterView"
 import type { Store } from "@app/client/store"
-
 import type { AppAction } from "@app/client/app/appActions"
+
+import { DualEditor } from "@app/client/remirrorEditor/remirrorEditorView"
+
 export type { AppAction } from "@app/client/app/appActions"
 export type { AppModel } from "@app/client/app/appController"
-
 export { initApp as init, updateApp as update } from "@app/client/app/appController"
+
 
 //--- Views
 
@@ -49,6 +51,9 @@ export function App({ store }: { store: Store<AppModel, AppAction> }) {
             <RandomQuoteMemo model={quoterState} dispatch={dispatch} />
             <Flex flexGrow="2" flexShrink="1">
                 <ProseMirrorEditorMemo model={editorState} dispatch={dispatch} />
+            </Flex>
+            <Flex flexGrow="2" flexShrink="1">
+                <DualEditor />
             </Flex>
         </AppLayout>
     </>
