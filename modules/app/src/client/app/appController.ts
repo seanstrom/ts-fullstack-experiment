@@ -59,19 +59,22 @@ export function updateApp(model: AppModel, action: AppAction): Change<AppModel, 
             model: mutate(model, draft => { draft.quoter = change.model }),
             effect: change.effect
         }
-    } else if (isCounterAction(action)) {
+    }
+    else if (isCounterAction(action)) {
         const change = updateCounter(model.counter, action)
         return {
             model: mutate(model, draft => { draft.counter = change.model }),
             effect: change.effect
         }
-    } else if (isEditorAction(action)) {
+    }
+    else if (isEditorAction(action)) {
         const change = updateEditor(model.editor, action)
         return {
             model: { ...model, editor: change.model },
             effect: change.effect
         }
-    } else if (isWidgetAction(action)) {
+    }
+    else if (isWidgetAction(action)) {
         switch (action.type) {
             case WidgetActionTags.Update: {
                 const modelWithChange = Optics.set(action.widgetOptic)(action.widgetChange.model)(model)
