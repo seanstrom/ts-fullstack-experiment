@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest"
 import { optic } from "optics-ts"
 import { create as mutate } from "mutative"
 
-import { WidgetActionTags } from "@app/client/actions"
+import { WidgetActionTags } from "@app/client/app/appActions"
 
 import {
     CounterActionTags,

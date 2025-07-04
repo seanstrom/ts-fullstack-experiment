@@ -1,7 +1,7 @@
 import { create as mutate } from "mutative"
 
 import type { Quote } from "@app/data"
-import type { AppEffect, RpcEffect } from "@app/client/effects"
+import type { AppEffect, RpcEffect } from "@app/client/app/appEffects"
 import { type Change } from "@app/client/store"
 
 //--- Actions

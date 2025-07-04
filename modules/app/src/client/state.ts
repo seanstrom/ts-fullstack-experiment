@@ -1,9 +1,11 @@
-import * as appController from "./app/appController"
 import type { Root } from "react-dom/client"
-import type { AppEffect } from "./effects"
-import type { Change, Store, StoreAction } from "./store"
-import type { AppModel, AppAction } from "./app"
-import type { ClientApi } from "./api"
+import type { ClientApi } from "@app/client/api"
+import type { AppModel } from "@app/client/app/appController"
+import type { AppAction } from "@app/client/app/appActions"
+import type { AppEffect } from "@app/client/app/appEffects"
+import type { Change, Store, StoreAction } from "@app/client/store"
+
+import * as appController from "@app/client/app/appController"
 
 export interface Controller<Model, Action, Effect> {
     init(flags?: any): Change<Model, Effect>

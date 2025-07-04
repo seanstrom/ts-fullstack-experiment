@@ -1,10 +1,10 @@
 import * as Optics from "optics-ts"
 import { create as mutate } from "mutative"
 
-import { initEditor, updateEditor, type EditorModel } from "../exampleEditor"
+import { initEditor, updateEditor, type EditorModel } from "@app/client/exampleEditor/exampleEditorController"
 import { initCounter, updateCounter, type CounterModel } from "@app/client/counter/counterController"
 import { updateQuoter, type QuoterModel } from "@app/client/quoter/quoterController"
-import type { AppEffect } from "@app/client/effects"
+import type { AppEffect } from "@app/client/app/appEffects"
 import type { Change } from "@app/client/store"
 
 import {
@@ -14,7 +14,7 @@ import {
     isWidgetAction,
     WidgetActionTags,
     type AppAction,
-} from "../actions"
+} from "./appActions"
 
 export type AppModel = {
     counter: CounterModel

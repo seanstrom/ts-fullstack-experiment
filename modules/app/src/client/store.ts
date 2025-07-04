@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { devtools, redux } from "zustand/middleware"
-import type { AppEffect } from "./effects"
-import type { StateController } from "./state"
+import type { AppEffect } from "@app/client/app/appEffects"
+import type { StateController } from "@app/client/state"
 
 export interface StoreAction {
     type: string

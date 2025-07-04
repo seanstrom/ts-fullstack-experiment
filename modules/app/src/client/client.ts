@@ -1,14 +1,13 @@
 import { createRoot } from "react-dom/client"
-import type { AppModel, AppAction } from "./app"
-import * as app from "./app"
-import * as appController from "./app/appController"
-import { createClientApi, type ClientApi } from "./api"
-import type { AppEffect } from "./effects"
-import { state, type RootState } from "./state"
-import { createStore, type Store, type EffectAction } from "./store"
+import { App, type AppAction, type AppModel } from "@app/client/app/appView"
+import * as appController from "@app/client/app/appController"
+import { createClientApi, type ClientApi } from "@app/client/api"
+import type { AppEffect } from "@app/client/app/appEffects"
+import { state, type RootState } from "@app/client/state"
+import { createStore, type Store, type EffectAction } from "@app/client/store"
 
 import "@radix-ui/themes/styles.css"
-import "./client.css"
+import "@app/client/client.css"
 
 if (import.meta.hot) {
     import.meta.hot.accept()
@@ -17,7 +16,7 @@ if (import.meta.hot) {
 const rootElementId = "root"
 
 function renderRoot(store: Store<AppModel, AppAction>): void {
-    state.renderRoot?.render(app.RenderApp(store))
+    state.renderRoot?.render(App({ store }))
 }
 
 async function runEffect(api: ClientApi, effectAction: EffectAction<AppEffect, AppAction>) {

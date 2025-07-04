@@ -1,9 +1,9 @@
 import * as Optics from "optics-ts"
 import { useCallback, useRef } from "react"
-import { usePortableLayoutEffect } from "./utils"
-import type { StoreAction, Store, StoreSelector, Updater } from "./store"
-import { WidgetActionTags, type WidgetAction } from "./actions"
-import type { AppEffect } from "@app/client/effects"
+import { usePortableLayoutEffect } from "@app/client/utils"
+import type { StoreAction, Store, StoreSelector, Updater } from "@app/client/store"
+import { WidgetActionTags, type WidgetAction } from "@app/client/app/appActions"
+import type { AppEffect } from "@app/client/app/appEffects"
 
 export type Dispatcher<Action> = (action: Action) => void
 

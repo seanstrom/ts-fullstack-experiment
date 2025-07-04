@@ -1,25 +1,24 @@
-import { type Command, EditorState, Transaction } from "prosemirror-state";
+import { type Command } from "prosemirror-state"
+import { reactKeys } from "@handlewithcare/react-prosemirror"
+
+import { schema } from "prosemirror-markdown"
+
 import {
-    schema,
-    defaultMarkdownParser,
-    defaultMarkdownSerializer
-} from "prosemirror-markdown"
+    wrapIn, setBlockType, chainCommands, toggleMark, exitCode,
+    joinUp, joinDown, lift, selectParentNode, baseKeymap
+} from "prosemirror-commands"
+
+import { keymap } from "prosemirror-keymap"
+
+import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
+import { undo, redo } from "prosemirror-history"
+
 import {
     inputRules, wrappingInputRule, textblockTypeInputRule,
-    smartQuotes, emDash, ellipsis
+    smartQuotes, emDash, ellipsis, undoInputRule
 } from "prosemirror-inputrules"
+
 import { NodeType, Schema } from "prosemirror-model"
-import { keymap } from "prosemirror-keymap"
-import { baseKeymap } from "prosemirror-commands"
-
-
-import { type AppAction, type EditorAction, EditorActionTags } from "./actions"
-import { useResponders, type Dispatcher } from "./framework"
-import type { Change } from "./store"
-import type { AppEffect } from "./effects"
-
-import "./exampleEditor.css"
-
 
 /// Given a blockquote node type, returns an input rule that turns `"> "`
 /// at the start of a textblock into a blockquote.
@@ -67,20 +66,6 @@ export function buildInputRules(schema: Schema) {
     if (type = schema.nodes.heading) rules.push(headingRule(type, 6))
     return inputRules({ rules })
 }
-
-import {
-    ProseMirror,
-    ProseMirrorDoc,
-    reactKeys,
-} from "@handlewithcare/react-prosemirror";
-
-import {
-    wrapIn, setBlockType, chainCommands, toggleMark, exitCode,
-    joinUp, joinDown, lift, selectParentNode
-} from "prosemirror-commands"
-import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
-import { undo, redo } from "prosemirror-history"
-import { undoInputRule } from "prosemirror-inputrules"
 
 const mac = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false
 
@@ -180,7 +165,7 @@ export function buildKeymap(schema: Schema, mapKeys?: { [key: string]: false | s
     return keys
 }
 
-function buildPlugin(options: {
+export function buildPlugin(options: {
     schema: Schema,
     mapKeys?: { [key: string]: string | false }
 }) {
@@ -192,50 +177,4 @@ function buildPlugin(options: {
     ]
 }
 
-const editorPlugins = buildPlugin({ schema: schema })
-
-export type EditorModel = {
-    state: EditorState
-}
-
-export function initEditor(markdownContent: string): Change<EditorModel, AppEffect> {
-    const state = EditorState.create({
-        schema,
-        doc: defaultMarkdownParser.parse(markdownContent),
-        plugins: editorPlugins
-    })
-
-    return { model: { state } }
-}
-
-export function updateEditor(model: EditorModel, action: EditorAction): Change<EditorModel, AppEffect> {
-    switch (action.type) {
-        case EditorActionTags.UpdateState: {
-            const newState = model.state.apply(action.transaction)
-            return {
-                model: { state: newState },
-            }
-        }
-    }
-}
-
-function onUpdateState(
-    dispatch: Dispatcher<EditorAction>,
-    _model: EditorModel,
-    tx: Transaction
-) {
-    // dispatch({
-    //     type: EditorActionTags.UpdateState,
-    //     editorId: "markdown",
-    //     transaction: tx
-    // })
-}
-
-export function ProseMirrorEditor({ model, dispatch }: { model: EditorModel, dispatch: Dispatcher<AppAction> }) {
-    const responders = useResponders(dispatch, model, { onUpdateState})
-    return (
-        <ProseMirror defaultState={model.state} dispatchTransaction={responders.onUpdateState}>
-            <ProseMirrorDoc />
-        </ProseMirror>
-    );
-}
+export const editorPlugins = buildPlugin({ schema: schema })

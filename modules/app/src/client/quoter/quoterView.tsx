@@ -1,6 +1,6 @@
 import { Text } from "@radix-ui/themes"
 
-import type { AppAction } from "@app/client/actions"
+import type { AppAction } from "@app/client/app/appActions"
 import { useResponders, type Dispatcher } from "@app/client/framework"
 import { QuoterActionTags, type QuoterModel } from "@app/client/quoter/quoterController"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent } from "@app/client/views"

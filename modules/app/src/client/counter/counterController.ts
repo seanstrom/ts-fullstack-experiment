@@ -1,6 +1,6 @@
 import { create as mutate } from "mutative"
 
-import type { AppEffect } from "@app/client/effects"
+import type { AppEffect } from "@app/client/app/appEffects"
 import type { Change } from "@app/client/store"
 
 // --- Actions

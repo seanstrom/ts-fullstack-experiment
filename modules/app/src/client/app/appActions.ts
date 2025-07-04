@@ -1,31 +1,17 @@
 import * as Optics from "optics-ts"
-import type { Transaction as ProseMirrorTransaction } from "prosemirror-state"
 
-import type { AppEffect } from "@app/client/effects"
+import type { AppEffect } from "@app/client/app/appEffects"
 import type { StoreAction, Change } from "@app/client/store"
-import type { AppModel } from "@app/client/app"
+import type { AppModel } from "@app/client/app/appView"
 import type { CounterAction } from "@app/client/counter/counterController"
 import type { QuoterAction } from "@app/client/quoter/quoterController"
-
-export const EditorActionTags = {
-    UpdateState: ":editors/UpdateState",
-} as const
+import type { EditorAction } from "@app/client/exampleEditor/exampleEditorController"
 
 export type AppAction =
     QuoterAction
     | CounterAction
     | EditorAction
     | WidgetAction<any, any, any, AppEffect>
-
-export type EditorTransaction = ProseMirrorTransaction
-
-export interface EditorUpdateState {
-    type: typeof EditorActionTags.UpdateState,
-    editorId: string
-    transaction: EditorTransaction
-}
-
-export type EditorAction = EditorUpdateState
 
 export const WidgetActionTags = {
     Update: ":widgets/update",

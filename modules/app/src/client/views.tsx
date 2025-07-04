@@ -1,7 +1,7 @@
 import { memo as memoRender } from "react"
 import { Flex, Button } from "@radix-ui/themes"
 
-import type { InteractionHandler } from "./framework"
+import type { InteractionHandler } from "@app/client/framework"
 
 export type ViewEvent<El = Element, Ev = Event> = React.UIEvent<El, Ev>
 

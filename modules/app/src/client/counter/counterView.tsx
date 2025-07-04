@@ -1,9 +1,9 @@
 import * as Optics from "optics-ts"
 import { Text } from "@radix-ui/themes"
 
-import type { AppModel } from "@app/client/app"
+import type { AppModel } from "@app/client/app/appView"
 import { CounterActionTags, updateCounter, type CounterAction, type CounterModel } from "@app/client/counter/counterController"
-import type { AppAction } from "@app/client/actions"
+import type { AppAction } from "@app/client/app/appActions"
 import { useModel, useWidget, useResponders, type Dispatcher } from "@app/client/framework"
 import type { Store } from "@app/client/store"
 import { ComponentLayout, ComponentButtonMemo, type ViewEvent, ComponentButton } from "@app/client/views"

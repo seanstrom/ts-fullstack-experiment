@@ -1,4 +1,4 @@
-import type { ClientApiEffect } from "./api"
+import type { ClientApiEffect } from "@app/client/api"
 
 export const EffectTags = {
     Rpc: ":effects/rpc",
