@@ -5,7 +5,7 @@ import { Flex, Theme } from "@radix-ui/themes"
 import type { AppModel } from "@app/client/app/appController"
 import { ProseMirrorEditor } from "@app/client/exampleEditor"
 import { CounterWidget } from "@app/client/counter/counterView"
-import { RandomQuote } from "@app/client/quoter"
+import { RandomQuote } from "@app/client/quoter/quoterView"
 import type { Store } from "@app/client/store"
 
 import type { AppAction } from "@app/client/actions"

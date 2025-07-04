@@ -28,6 +28,8 @@ export type QuoterModel = {
     quote?: Quote
 }
 
+//--- Effects
+
 const randomQuoteEffect: RpcEffect = {
     type: ":effects/rpc",
     command: {
@@ -36,6 +38,8 @@ const randomQuoteEffect: RpcEffect = {
         input: (void 0),
     }
 }
+
+//--- Update
 
 export function updateQuoter(model: QuoterModel, action: QuoterAction): Change<QuoterModel, AppEffect> {
     switch (action.type) {
