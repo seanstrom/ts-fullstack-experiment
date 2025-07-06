@@ -21,6 +21,9 @@ if (import.meta.hot) {
 //---
 
 async function runRpcEffect(api: ClientApi, effect: RpcEffect, dispatch: Dispatcher<AppAction>) {
+    // NOTE: needed to dectect the untyped symbol from TRPC until we patch the client library
+    if (typeof effect.command.type === "symbol") return
+    
     // NOTE: needed to use `any` type to avoid type puzzle with
     // narrowing the response type based on the rpcEffect.
     const sendApiCommand = api[effect.command.type][effect.command.procedure]
