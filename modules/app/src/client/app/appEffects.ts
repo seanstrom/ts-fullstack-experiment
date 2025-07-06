@@ -1,4 +1,5 @@
 import type { ClientApiEffect } from "@app/client/api"
+import type { AppAction } from "@app/client/app/appActions"
 
 export const EffectTags = {
     Rpc: ":effects/rpc",
@@ -7,7 +8,7 @@ export const EffectTags = {
 
 export interface RpcEffect {
     type: typeof EffectTags.Rpc
-    command: ClientApiEffect
+    command: ClientApiEffect<AppAction>
 }
 
 export interface TimeEffect {

@@ -34,7 +34,20 @@ const fileContentEffect: RpcEffect = {
         input: {
             fileId: "Test.md"
         },
-    }
+        toSuccessAction(data) {
+            return {
+                type: ":file/GotFileContent",
+                fileContent: data.fileContent,
+                fileId: data.filedId,
+            }
+        },
+        toFailureAction(_error) {
+            return {
+                type: ":file/MissingFileContent",
+                message: "Oops"
+            }
+        },
+    },
 }
 
 export function initApp(): Change<AppModel, AppEffect> {
@@ -84,7 +97,7 @@ export function updateApp(model: AppModel, action: AppAction): Change<AppModel, 
                 }
             }
         }
-    } 
+    }
     else if (isFileAction(action)) {
         switch (action.type) {
             case FileActionTags.GotFileContent: {
@@ -92,6 +105,11 @@ export function updateApp(model: AppModel, action: AppAction): Change<AppModel, 
                     model: mutate(model, draft => {
                         draft.files[action.fileId] = action.fileContent
                     })
+                }
+            }
+            case FileActionTags.MissingFileContent: {
+                return {
+                    model: model
                 }
             }
         }

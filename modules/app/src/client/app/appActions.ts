@@ -7,16 +7,22 @@ import type { CounterAction } from "@app/client/counter/counterController"
 import type { QuoterAction } from "@app/client/quoter/quoterController"
 import type { EditorAction } from "@app/client/exampleEditor/exampleEditorController"
 
-export type FileAction = GotFileContent
+export type FileAction = GotFileContent | MissingFileContent
 
 export const FileActionTags = {
     GotFileContent: ":file/GotFileContent",
+    MissingFileContent: ":file/MissingFileContent",
 } as const
 
 export interface GotFileContent {
     type: typeof FileActionTags.GotFileContent 
     fileContent: string
     fileId: string
+}
+
+export interface MissingFileContent {
+    type: typeof FileActionTags.MissingFileContent
+    message: string
 }
 
 export type AppAction =

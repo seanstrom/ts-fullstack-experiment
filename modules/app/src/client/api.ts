@@ -43,11 +43,12 @@ export type ClientApiEffects = {
     }
 }
 
-export type ClientApiEffect = {
+export type ClientApiEffect<Action> = {
     [K in keyof ClientApiEffects]: {
         type: ClientApiEffects[K]["type"]
         procedure: ClientApiEffects[K]["procedure"]
         input: InferDetail<ClientApiEffects[K]["details"], "input">
+        toSuccessAction: (output: InferDetail<ClientApiEffects[K]["details"], "output">) => Action
+        toFailureAction: (error: InferDetail<ClientApiEffects[K]["details"], "errorShape">) => Action
     }
 }[keyof ClientApiEffects]
-
