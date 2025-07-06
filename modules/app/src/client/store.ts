@@ -26,18 +26,21 @@ export type Updater<Model, Action extends StoreAction, Effect extends AppEffect>
 export type Reducer<Model, Action> =
     (model: Model, action: Action) => Model
 
-class StoreRunner<Model, Action, Effect> {
+export class AppRunner<Model, Action, Effect> {
     ports: {
         dispatch: (action: Action) => void
-        forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+        forwardEffect: (effect: EffectAction<Effect, Action>) => void | Promise<void>
     }
 
     stateController: StateController<Model, Action, Effect>
 
-    constructor(stateController: StateController<Model, Action, Effect>, forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>) {
+    constructor(
+        stateController: StateController<Model, Action, Effect>,
+        forwardEffect: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+    ) {
         this.ports = {
             dispatch: (_action) => { },
-            forward: forward
+            forwardEffect: forwardEffect
         }
 
         this.stateController = stateController
@@ -52,48 +55,19 @@ class StoreRunner<Model, Action, Effect> {
     }
 }
 
-function createZustandStore<
-    Model,
-    Action extends StoreAction,
-    Effect extends AppEffect
->(
-    storeRunner: StoreRunner<Model, Action, Effect>,
-    initialModel: Model
-) {
-    return create(devtools(redux<Model, Action>((model, action) => {
-        const change = storeRunner.update(model, action)
-        console.log("update change: ", change)
-        if (change.effect) {
-            storeRunner.ports.forward({
-                effect: change.effect,
-                dispatch: storeRunner.ports.dispatch,
-            })
-        }
-        return change.model
-    }, initialModel)))
-}
-
 export function createStore<
     Model,
     Action extends StoreAction,
-    Effect extends AppEffect,
+    // NOTE: This seems to be heare for the StoresSelector type
+    _Effect extends AppEffect,
 >(
-    stateController: StateController<Model, Action, Effect>,
-    forward: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+    initialModel: Model,
+    reducerMiddleware: (model: Model, action: Action) => Model
 ) {
-    const storeRunner = new StoreRunner(stateController, forward)
-    const initialChange = storeRunner.init()
-    const store = createZustandStore(storeRunner, initialChange.model)
-    storeRunner.ports.dispatch = store.dispatch
+    return create(devtools(redux<Model, Action>((model, action) => {
+        return reducerMiddleware(model, action)
 
-    if (initialChange.effect) {
-        forward({
-            effect: initialChange.effect,
-            dispatch: storeRunner.ports.dispatch,
-        })
-    }
-
-    return store
+    }, initialModel)))
 }
 
 export type StoreSelector<Model, Action extends StoreAction> =
