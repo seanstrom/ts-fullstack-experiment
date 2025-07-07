@@ -1,10 +1,15 @@
 import { create } from "zustand"
 import { devtools, redux } from "zustand/middleware"
+import type { ClientApi } from "@app/client/api"
 import type { AppEffect } from "@app/client/app/appEffects"
-import type { StateController } from "@app/client/state"
 
 export interface StoreAction {
     type: string
+}
+
+export interface Controller<Model, Action, Effect> {
+    init(flags?: any): Change<Model, Effect>
+    update(model: Model, action: Action): Change<Model, Effect>
 }
 
 export interface EffectAction<Effect, Action> {
@@ -26,32 +31,71 @@ export type Updater<Model, Action extends StoreAction, Effect extends AppEffect>
 export type Reducer<Model, Action> =
     (model: Model, action: Action) => Model
 
-export class AppRunner<Model, Action, Effect> {
+
+export type Effector<Effect, Action> =
+    (context: { api: ClientApi }, effect: EffectAction<Effect, Action>) => void | Promise<void>
+
+export class AppRunner<Model, Action extends StoreAction, Effect extends AppEffect> {
     ports: {
         dispatch: (action: Action) => void
         forwardEffect: (effect: EffectAction<Effect, Action>) => void | Promise<void>
     }
 
-    stateController: StateController<Model, Action, Effect>
+    api: ClientApi
+    controller: Controller<Model, Action, Effect>
+    forwardEffect: Effector<Effect, Action>
+    reducerMiddleware: Reducer<Model, Action>
 
     constructor(
-        stateController: StateController<Model, Action, Effect>,
-        forwardEffect: (effect: EffectAction<Effect, Action>) => void | Promise<void>
+        api: ClientApi,
+        controller: Controller<Model, Action, Effect>,
+        forwardEffect: Effector<Effect, Action>,
     ) {
+        this.api = api
+        this.controller = controller
+        this.forwardEffect = forwardEffect
         this.ports = {
             dispatch: (_action) => { },
-            forwardEffect: forwardEffect
+            forwardEffect: (effectAction) => {
+                this.forwardEffect({ api: this.api }, effectAction)
+            }
         }
 
-        this.stateController = stateController
+        this.reducerMiddleware = (model: Model, action: Action) => {
+            const change = this.update(model, action)
+            console.log("update change: ", change)
+            if (change.effect) {
+                this.ports.forwardEffect({
+                    effect: change.effect,
+                    dispatch: this.ports.dispatch,
+                })
+            }
+            return change.model
+        }
     }
 
     init(flags?: any) {
-        return this.stateController.controller.init(flags)
+        const initialChange = this.controller.init(flags)
+        const store = createStore<Model, Action, Effect>(initialChange.model, (model, action) => {
+            return this.reducerMiddleware(model, action)
+        })
+        this.ports.dispatch = store.dispatch
+
+        if (initialChange.effect) {
+            this.ports.forwardEffect({
+                effect: initialChange.effect,
+                dispatch: this.ports.dispatch
+            })
+        }
+
+        return {
+            store,
+            initialChange,
+        }
     }
 
     update(model: Model, action: Action) {
-        return this.stateController.controller.update(model, action)
+        return this.controller.update(model, action)
     }
 }
 
@@ -66,7 +110,6 @@ export function createStore<
 ) {
     return create(devtools(redux<Model, Action>((model, action) => {
         return reducerMiddleware(model, action)
-
     }, initialModel)))
 }
 
