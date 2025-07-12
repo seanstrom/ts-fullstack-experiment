@@ -1,3 +1,4 @@
+import { Effect, Either } from "effect"
 import { createRoot, type Root } from "react-dom/client"
 
 import { createClientApi, type ClientApi } from "@app/client/api"
@@ -6,7 +7,7 @@ import { stateRef, type RootState } from "@app/client/state"
 import { type Store, AppRunner, type Effector } from "@app/client/store"
 
 import * as appController from "@app/client/app/appController"
-import type { AppEffect, RpcEffect } from "@app/client/app/appEffects"
+import type { AppEffect, RpcEffect, TimeEffect, CustomEffect } from "@app/client/app/appEffects"
 import { RenderApp, type AppAction, type AppModel } from "@app/client/app/appView"
 
 import "@radix-ui/themes/styles.css"
@@ -27,18 +28,56 @@ async function runRpcEffect(api: ClientApi, effect: RpcEffect, dispatch: Dispatc
     // NOTE: needed to use `any` type to avoid type puzzle with
     // narrowing the response type based on the rpcEffect.
     const sendApiCommand = api[effect.command.type][effect.command.procedure]
+
     return sendApiCommand(effect.command.input as any)
-        .then((data) => ({ type: "ok" as const, data }))
+        .then(data => ({ type: "ok" as const, data }))
         .catch(error => ({ type: "error" as const, error }))
         .then(response => {
             if (response.type === "error") {
-                const responseAction = effect.command.toFailureAction(response.error)
+                const responseAction = effect.command.adapters.toFailureAction(response.error)
                 dispatch(responseAction)
             } else {
-                const responseAction = effect.command.toSuccessAction(response.data as any)
+                const responseAction = effect.command.adapters.toSuccessAction(response.data as any)
                 dispatch(responseAction)
             }
             return response
+        })
+}
+
+async function runTimeEffect(effect: TimeEffect<AppAction>, dispatch: Dispatcher<AppAction>) {
+    switch (effect.command.type) {
+        case "timeout": {
+            const originTime = performance.timeOrigin + performance.now()
+            setTimeout(() => {
+                const nowTime = performance.timeOrigin + performance.now()
+                const deltaTime = nowTime - originTime
+                const action = effect.command.adapters.toAction({ deltaTime })
+                dispatch(action)
+            }, effect.command.amount)
+            break
+        }
+        case "interval": {
+            const originTime = performance.timeOrigin + performance.now()
+            setInterval(() => {
+                const nowTime = performance.timeOrigin + performance.now()
+                const deltaTime = nowTime - originTime
+                const action = effect.command.adapters.toAction({ deltaTime })
+                dispatch(action)
+            }, effect.command.amount)
+            break
+        }
+    }
+}
+
+function runCustomEffect<Command extends CustomEffect<any, any, AppAction>>(
+    command: Command, dispatch: Dispatcher<AppAction>
+) {
+    return Effect.runPromise(command.commmand)
+        .then(Either.right)
+        .catch(Either.left)
+        .then(result => {
+            const action = command.adapters.toAction(result)
+            dispatch(action)
         })
 }
 
@@ -46,6 +85,14 @@ const forwardEffect: Effector<AppEffect, AppAction> = async (context, effectActi
     switch (effectAction.effect.type) {
         case ":effects/rpc": {
             runRpcEffect(context.api, effectAction.effect, effectAction.dispatch)
+            break
+        }
+        case ":effects/time": {
+            runTimeEffect(effectAction.effect, effectAction.dispatch)
+            break
+        }
+        case ":effects/custom": {
+            runCustomEffect(effectAction.effect, effectAction.dispatch)
             break
         }
         default: {

@@ -48,7 +48,23 @@ export type ClientApiEffect<Action> = {
         type: ClientApiEffects[K]["type"]
         procedure: ClientApiEffects[K]["procedure"]
         input: InferDetail<ClientApiEffects[K]["details"], "input">
-        toSuccessAction: (output: InferDetail<ClientApiEffects[K]["details"], "output">) => Action
-        toFailureAction: (error: InferDetail<ClientApiEffects[K]["details"], "errorShape">) => Action
+        adapters: {
+            toSuccessAction: (output: InferDetail<ClientApiEffects[K]["details"], "output">) => Action
+            toFailureAction: (error: InferDetail<ClientApiEffects[K]["details"], "errorShape">) => Action
+        }
+    }
+}[keyof ClientApiEffects]
+
+export type ClientApiEffectAdapters<Action> = {
+    [K in keyof ClientApiEffects]: {
+        api: {
+            type: ClientApiEffects[K]["type"]
+            procedure: ClientApiEffects[K]["procedure"]
+            input: InferDetail<ClientApiEffects[K]["details"], "input">
+        }
+        adapters: {
+            toSuccessAction: (output: InferDetail<ClientApiEffects[K]["details"], "output">) => Action
+            toFailureAction: (error: InferDetail<ClientApiEffects[K]["details"], "errorShape">) => Action
+        }
     }
 }[keyof ClientApiEffects]

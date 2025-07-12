@@ -34,19 +34,21 @@ const fileContentEffect: RpcEffect = {
         input: {
             fileId: "Test.md"
         },
-        toSuccessAction(data) {
-            return {
-                type: ":file/GotFileContent",
-                fileContent: data.fileContent,
-                fileId: data.filedId,
-            }
-        },
-        toFailureAction(_error) {
-            return {
-                type: ":file/MissingFileContent",
-                message: "Oops"
-            }
-        },
+        adapters: {
+            toSuccessAction(data) {
+                return {
+                    type: ":file/GotFileContent",
+                    fileContent: data.fileContent,
+                    fileId: data.filedId,
+                }
+            },
+            toFailureAction(_error) {
+                return {
+                    type: ":file/MissingFileContent",
+                    message: "Oops"
+                }
+            },
+        }
     },
 }
 
