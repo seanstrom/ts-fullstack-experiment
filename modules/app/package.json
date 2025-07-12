@@ -22,6 +22,7 @@
     "@types/react-dom": "^19.1.5",
     "cors": "^2.8.5",
     "create-context-state": "^2.0.3",
+    "effect": "^3.16.12",
     "grommet": "^2.47.0",
     "mutative": "^1.2.0",
     "optics-ts": "^2.4.1",
