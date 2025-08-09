@@ -8,6 +8,14 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@effect/cli": "^0.67.1",
+    "@effect/cluster": "^0.46.0",
+    "@effect/platform": "^0.88.2",
+    "@effect/platform-bun": "^0.77.0",
+    "@effect/platform-node": "^0.91.0",
+    "@effect/rpc": "^0.68.0",
+    "@effect/sql": "^0.44.0",
+    "@effect/sql-sqlite-bun": "^0.45.0",
     "@emotion/css": "^11.13.5",
     "@handlewithcare/react-prosemirror": "^2.4.4",
     "@radix-ui/themes": "^3.2.1",
@@ -22,6 +30,7 @@
     "@types/react-dom": "^19.1.5",
     "cors": "^2.8.5",
     "create-context-state": "^2.0.3",
+    "drizzle-orm": "^0.44.3",
     "effect": "^3.16.12",
     "grommet": "^2.47.0",
     "mutative": "^1.2.0",
@@ -44,7 +53,11 @@
     "remirror": "^3.0.2",
     "styled-components": "^6.1.18",
     "tailwind-variants": "^1.0.0",
+    "uuid": "^11.1.0",
     "zod": "^3.25.57",
     "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.19"
   }
 }
