@@ -1,6 +1,7 @@
 import { z } from "zod/v4"
 import { Database } from 'bun:sqlite'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
+import { sql } from "drizzle-orm"
 import { sqliteTable, integer, text, customType } from 'drizzle-orm/sqlite-core'
 
 const anyType = (name: string) =>
@@ -24,6 +25,12 @@ export const infoTable = sqliteTable("info", {
     value: anyType("value").notNull(),
     tx: varchar(36)("tx"),
     op: integer().default(1).notNull(),
+})
+
+export const transactionTable = sqliteTable("tx", {
+    id: integer("id").primaryKey().notNull(),
+    txId: varchar(36)("tx_id"),
+    txTime: text("tx_time").notNull().default(sql`(current_timestamp)`),
 })
 
 export const bookmarksTable = sqliteTable('bookmarks', {

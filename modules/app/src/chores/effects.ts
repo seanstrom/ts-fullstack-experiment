@@ -1,7 +1,8 @@
 import { $ } from "bun"
 import { Effect } from "effect"
 import { and, eq, inArray, notInArray, sql } from 'drizzle-orm'
-import { bookmarksTable, makeDatabaseClient, BookmarkTicketSchema, type DBClient, BookmarkGroupListSchema } from "./shared"
+import { bookmarksTable, makeDatabaseClient, BookmarkTicketSchema, type DBClient, BookmarkGroupListSchema, infoTable, transactionTable, type Bookmark } from "./shared"
+import { v7 as uuidV7 } from "uuid"
 
 //docs: extract all meaningful values from bookmarks database
 
@@ -106,6 +107,49 @@ export function backupBookmarks(args: {
 
         return {
             ":action": "backup-bookmarks",
+        }
+    })
+}
+
+type EntityDbFact = { entity: number, attribute: string, value: any, tx: string, op: number }
+
+export function exportBookmarks(args: {
+    inputDbFilePath: string,
+    outputDbFilePath: string
+}) {
+    return Effect.gen(function* () {
+        const inputDb = makeDatabaseClient(args.inputDbFilePath)
+        const outputDb = makeDatabaseClient(args.outputDbFilePath)
+
+        yield* Effect.promise(async () => {
+            const payload = await extractBookmarks(inputDb)
+
+            const results = payload.map((item) => {
+                return outputDb.transaction(async tx => {
+                    const txId = uuidV7()
+                    const attributePairs = Object.entries(item)
+                    const entityFacts: EntityDbFact[] = []
+                    attributePairs.forEach(([attrName, attrVal]) => {
+                        if (attrVal !== null) {
+                            entityFacts.push({
+                                entity: item.id,
+                                attribute: attrName,
+                                value: attrVal,
+                                tx: txId,
+                                op: 1,
+                            })
+                        }
+                    })
+                    await tx.insert(transactionTable).values([{ txId }])
+                    return outputDb.insert(infoTable).values(entityFacts)
+                })
+            })
+
+            await Promise.all(results)
+        })
+
+        return {
+            ":action": "export-bookmarks"
         }
     })
 }
