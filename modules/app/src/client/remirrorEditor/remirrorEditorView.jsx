@@ -183,8 +183,8 @@ export const DualEditor = () => {
                 }}>
                     {isMarkdownVisible ? "Hide Markdown" : "Show Markdown"}
                 </button>
-                <div className="Editors">
-                    <div className="RichEditor">
+                <div className="Editors flex-1">
+                    <div className="RichEditor flex-1">
                         <VisualEditor />
                     </div>
                     <div className="RawEditor" style={{ visibility: isMarkdownVisible ? "visible" : "hidden" }}>

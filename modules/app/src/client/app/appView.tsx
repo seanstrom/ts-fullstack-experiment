@@ -49,7 +49,7 @@ export function App({ store }: { store: Store<AppModel, AppAction> }) {
                 <CounterWidgetMemo store={store} optic={counterLens} />
             </Flex>
             <RandomQuoteMemo model={quoterState} dispatch={dispatch} />
-            <Flex flexGrow="2" flexShrink="1">
+            <Flex flexGrow="1" flexShrink="1">
                 <ProseMirrorEditorMemo model={editorState} dispatch={dispatch} />
             </Flex>
             <Flex flexGrow="2" flexShrink="1">

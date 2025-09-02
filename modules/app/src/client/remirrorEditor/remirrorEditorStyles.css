@@ -15,8 +15,8 @@ html {
 }
 
 .Editors {
-  max-width: 1200px;
-  margin: 0 auto;
+  /* max-width: 1200px; */
+  /* margin: 0 auto; */
   flex: 1;
   display: flex;
   position: relative;
@@ -33,6 +33,12 @@ html {
     right: 0;
     top: 0;
     bottom: 0;
+}
+
+.remirror-theme {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .RichEditor .remirror-editor {
