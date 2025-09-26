@@ -42,17 +42,19 @@ const randomQuoteEffect: RpcEffect = {
         type: "fetchRandomQuote",
         procedure: "query",
         input: (void 0),
-        toSuccessAction(data): QuoterAction {
-            return {
-                type: ":quoter/GotRandomQuote",
-                quote: data
-            }
-        },
-        toFailureAction(_error): QuoterAction {
-            return {
-                type: ":quoter/MissingRandomQuote",
-                message: "Oops"
-            }
+        adapters: {
+            toSuccessAction(data): QuoterAction {
+                return {
+                    type: ":quoter/GotRandomQuote",
+                    quote: data
+                }
+            },
+            toFailureAction(_error): QuoterAction {
+                return {
+                    type: ":quoter/MissingRandomQuote",
+                    message: "Oops"
+                }
+            },
         },
     }
 }
