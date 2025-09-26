@@ -9,6 +9,8 @@ import { RandomQuote } from "@app/client/quoter/quoterView"
 import type { Store } from "@app/client/store"
 import type { AppAction } from "@app/client/app/appActions"
 
+import { Cube3D } from "@app/client/cube/cubeView"
+
 import { DualEditor } from "@app/client/remirrorEditor/remirrorEditorView"
 
 export type { AppAction } from "@app/client/app/appActions"
@@ -54,6 +56,9 @@ export function App({ store }: { store: Store<AppModel, AppAction> }) {
             </Flex>
             <Flex flexGrow="2" flexShrink="1">
                 <DualEditor />
+            </Flex>
+            <Flex>
+                <Cube3D />
             </Flex>
         </AppLayout>
     </>
