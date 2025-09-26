@@ -11,6 +11,8 @@
     "@emotion/css": "^11.13.5",
     "@handlewithcare/react-prosemirror": "^2.4.4",
     "@radix-ui/themes": "^3.2.1",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@remirror/core": "^3.0.1",
     "@remirror/react": "^3.0.2",
     "@remirror/react-editors": "^2.0.2",
@@ -44,7 +46,11 @@
     "remirror": "^3.0.2",
     "styled-components": "^6.1.18",
     "tailwind-variants": "^1.0.0",
+    "three": "^0.180.0",
     "zod": "^3.25.57",
     "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0"
   }
 }
