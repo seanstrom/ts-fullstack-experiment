@@ -102,7 +102,7 @@ export class AppRunner<Model, Action extends StoreAction, Effect extends AppEffe
 export function createStore<
     Model,
     Action extends StoreAction,
-    // NOTE: This seems to be heare for the StoresSelector type
+    // NOTE: This seems to be here for the StoresSelector type
     _Effect extends AppEffect,
 >(
     initialModel: Model,
