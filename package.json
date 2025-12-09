@@ -11,6 +11,7 @@
   },
   "packageManager": "pnpm@9.13.1+sha512.5ac37545851c55ec58521b6c285db6f848f93ca70889beb4145f5b40fe234e4ea4faee4dad12ac5c139e494374c65d9c3a6ec9a25954378fa286a250e68d2f20",
   "devDependencies": {
+    "@danielx/civet": "^0.11.1",
     "@tailwindcss/vite": "^4.1.10",
     "@vitejs/plugin-react": "^4.5.1",
     "daisyui": "^5.0.43",
